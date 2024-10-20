@@ -7,18 +7,21 @@ import AppTable from "~/components/Table";
 import { FaPlus } from "react-icons/fa";
 import Backdrop from "~/components/Backdrop";
 
-const page = () => {
+const Page = () => {
   const ledgerData = [
     ["1", "Investors", "-", "400,000", "0.00"],
     ["2", "Buyer", "1,788,000", "-", "0.00"],
     ["3", "Employee", "10,000", "-", "0.00"],
   ];
   const headers = ["No.", "Account Book Name", "Debit", "Credit", "Balance"];
-  const buttons = ledgerData.map((i, k) => [
+  const buttons = ledgerData.map(() => [
     {
       label: "Detail",
       className: "bg-blue-500 text-white px-3 py-2 rounded mr-1",
       actionType: "DETAIL",
+      onClick: () => {
+        console.log("To be implemented");
+      },
     },
   ]);
   const [isNewLedgerOpen, setIsNewLedgerOpen] = useState(false);
@@ -196,4 +199,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

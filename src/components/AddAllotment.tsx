@@ -1,5 +1,5 @@
 "use client";
-import React, { type ReactEventHandler, useState } from "react";
+import React, { useState } from "react";
 import Backdrop from "~/components/Backdrop";
 import { Card, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import AddClient from "./AddClient";

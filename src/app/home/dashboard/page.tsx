@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 
-function page() {
+function Page() {
   const data = [
     { name: "SALE", amount: "100,000/- Rs." },
     { name: "SALE RETURN", amount: "100,000/- Rs." },
@@ -29,14 +29,14 @@ function page() {
     { name: "Overall", sub: "Number of shops and plots", amount: "10" },
   ];
 
-  const monthData = [
-    { name: "Sale", amount: "0/- Rs." },
-    { name: "Sale Return", amount: "0/- Rs." },
-    { name: "Actual Sale", amount: "0/- Rs." },
-    { name: "Expense", amount: "0/- Rs." },
-    { name: "Collection", amount: "0/- Rs." },
-    { name: "Lose", amount: "0/- Rs." },
-  ];
+  // const monthData = [
+  //   { name: "Sale", amount: "0/- Rs." },
+  //   { name: "Sale Return", amount: "0/- Rs." },
+  //   { name: "Actual Sale", amount: "0/- Rs." },
+  //   { name: "Expense", amount: "0/- Rs." },
+  //   { name: "Collection", amount: "0/- Rs." },
+  //   { name: "Lose", amount: "0/- Rs." },
+  // ];
 
   const yearData = [
     { name: "January", amount: 23420000 },
@@ -69,9 +69,9 @@ function page() {
           <CardTitle>Town Account Management System</CardTitle>
         </CardHeader>
         <CardContent className="mt-5 flex flex-wrap justify-between gap-5">
-          {data.map((element) => {
+          {data.map((element, index) => {
             return (
-              <Card className="w-48 p-2 shadow-sm shadow-slate-300">
+              <Card className="w-48 p-2 shadow-sm shadow-slate-300" key={index}>
                 <CardHeader>
                   <CardTitle className="font-bold">{element.name}</CardTitle>
                   <CardDescription>
@@ -90,9 +90,9 @@ function page() {
             <CardTitle>Plots</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col flex-wrap gap-10">
-            {plotsData.map((element) => {
+            {plotsData.map((element, index) => {
               return (
-                <div className="w-full">
+                <div className="w-full" key={index}>
                   <div className="flex w-full justify-between">
                     <Card className="w-full">
                       <CardHeader className="w-full">
@@ -121,9 +121,9 @@ function page() {
             <CardTitle>Earning</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col flex-wrap gap-10">
-            {yearData.map((element) => {
+            {yearData.map((element, index) => {
               return (
-                <div className="w-full">
+                <div className="w-full" key={index}>
                   <div className="flex w-full justify-between">
                     <Card className="w-full">
                       <CardHeader className="w-full">
@@ -144,4 +144,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

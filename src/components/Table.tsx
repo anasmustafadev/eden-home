@@ -112,7 +112,7 @@ function AppTable({ data, headers, buttons }: TableProps) {
               </TableCell>
             ))}
             <TableCell className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium">
-              {buttons[rowIndex].map((button, buttonIndex) => (
+              {buttons[rowIndex]?.map((button, buttonIndex) => (
                 <button
                   key={buttonIndex}
                   className={button.className}

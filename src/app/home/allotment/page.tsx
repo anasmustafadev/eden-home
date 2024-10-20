@@ -21,7 +21,7 @@ import AddMultiInstallment from "~/components/AddMultiInstallment";
 import CancelAllotment from "~/components/CancelAllotment";
 import DeletePermanentAllotment from "~/components/DeletePermanentAllotment";
 
-const page = () => {
+const Page = () => {
   const allotmentData = [
     [
       "1",
@@ -60,7 +60,7 @@ const page = () => {
     "Installment",
     "No of Installments",
   ];
-  const buttons = allotmentData.map((i, k) => [
+  const buttons = allotmentData.map(() => [
     {
       label: "Stamp paper",
       className:
@@ -278,9 +278,9 @@ const page = () => {
             <CardTitle>Sales Report</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col flex-wrap gap-10">
-            {report.map((element) => {
+            {report.map((element, index) => {
               return (
-                <div className="w-full">
+                <div className="w-full" key={index}>
                   <div className="flex w-full justify-between">
                     <Card className="w-full">
                       <CardHeader className="w-full">
@@ -301,4 +301,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

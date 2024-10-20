@@ -7,7 +7,7 @@ import Backdrop from "~/components/Backdrop";
 import { FaMoneyBillAlt } from "react-icons/fa";
 import { useState } from "react";
 
-const page = () => {
+const Page = () => {
   const expenseData = [
     ["No.", "Expense Accounts", "Amount"],
     ["1", "Office Expense", "15,000"],
@@ -100,4 +100,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

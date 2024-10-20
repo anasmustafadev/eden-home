@@ -1,5 +1,6 @@
 "use client";
-import React, { ChangeEvent, use, useEffect } from "react";
+import React, { useEffect } from "react";
+import type { ChangeEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import PageHeader from "~/components/PageHeader";
 import { MdLandscape } from "react-icons/md";
@@ -17,7 +18,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { IoMdMenu } from "react-icons/io";
 
-const page = () => {
+const Page = () => {
   const plotData = [
     [
       "1",
@@ -76,7 +77,7 @@ const page = () => {
     "Installment",
     "No of Installments",
   ];
-  const buttons = plotData.map((i, k) => [
+  const buttons = plotData.map(() => [
     {
       label: "Update",
       className:
@@ -109,7 +110,7 @@ const page = () => {
   const [form, setForm] = useState(defaultValue);
 
   const onClose = () => {
-    setForm((prev) => defaultValue);
+    setForm(() => defaultValue);
     setIsOpen(false);
   };
 
@@ -433,4 +434,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

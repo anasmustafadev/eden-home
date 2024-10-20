@@ -17,7 +17,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { IoMdMenu } from "react-icons/io";
 
-const page = () => {
+const Page = () => {
   const plotData = [
     [
       "1",
@@ -61,7 +61,7 @@ const page = () => {
     ],
   ];
   const headers = ["No.", "Type", "Name", "CNIC", "Address"];
-  const buttons = plotData.map((i, k) => [
+  const buttons = plotData.map(() => [
     {
       label: "Update",
       className:
@@ -140,4 +140,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
