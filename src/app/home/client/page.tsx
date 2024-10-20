@@ -130,7 +130,7 @@ const Page = () => {
                 </DropdownMenu>
               </div>
             </CardHeader>
-            <CardContent className="flex gap-2">
+            <CardContent className="max-w-90% flex gap-2">
               <AppTable data={plotData} headers={headers} buttons={buttons} />
             </CardContent>
           </Card>

@@ -80,7 +80,7 @@ interface TableProps {
 
 function AppTable({ data, headers, buttons }: TableProps) {
   return (
-    <Table className="min-w-64 max-w-full px-10">
+    <Table className="min-w-64 max-w-full">
       <TableHeader>
         <TableRow>
           {headers.map((header, index) => (
