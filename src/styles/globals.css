@@ -107,5 +107,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--poppin), sans-serif;
+    font-weight: 400;
   }
 }

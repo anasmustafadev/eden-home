@@ -21,6 +21,7 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
     name: string;
     cnic: string;
     address: string;
+    phone: string;
   }
 
   const defaultValue = {
@@ -28,6 +29,7 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
     name: "",
     cnic: "",
     address: "",
+    phone: "",
   };
 
   const [form, setForm] = useState<Form>(defaultValue);
