@@ -60,6 +60,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
         isOpen={isAddClientOpen}
         onClose={onAddClientClose}
         setIsOpen={setIsAddClientOpen}
+        isModalAdd={true}
       />
       <Backdrop isOpen={isOpen} onClose={onClose}>
         <Card className="flex h-[90vh] w-[30rem] flex-col gap-3 overflow-y-auto p-5">

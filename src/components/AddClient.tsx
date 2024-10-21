@@ -13,9 +13,15 @@ interface AddClientProps {
   isOpen: boolean;
   onClose: () => void;
   setIsOpen: (type: boolean) => void;
+  isModalAdd: boolean;
 }
 
-const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
+const AddClient = ({
+  isOpen,
+  onClose,
+  setIsOpen,
+  isModalAdd,
+}: AddClientProps) => {
   interface Form {
     type: number;
     name: string;
@@ -46,6 +52,11 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
     });
   }
   const handleSubmit = () => {
+    if (isModalAdd == true) {
+      console.log("Add");
+    } else if (isModalAdd == false) {
+      console.log("Update");
+    }
     onClose();
   };
   return (

@@ -59,8 +59,16 @@ const Page = () => {
   };
   const [formData, setFormData] = useState(defaultValue);
 
+  const [profileData, setProfileData] = useState(defaultValue);
+  const handleChangeProfile = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setProfileData({ ...profileData, [name]: value });
+  };
   // Function to close modal
   const onClose = () => {
+    setFormData(() => defaultValue);
     setIsOpen(false);
   };
 
@@ -208,12 +216,16 @@ const Page = () => {
                   <input
                     type="Name"
                     name="name"
+                    value={profileData.name}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Full Name"
                   />
                   <input
                     type="phone"
                     name="phone"
+                    value={profileData.phone}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Phone Number"
                   />
@@ -222,12 +234,16 @@ const Page = () => {
                   <input
                     type="text"
                     name="username"
+                    value={profileData.username}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Username"
                   />
                   <input
                     type="password"
                     name="password"
+                    value={profileData.password}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Password"
                   />
@@ -235,6 +251,8 @@ const Page = () => {
                 <input
                   type="text"
                   name="address"
+                  value={profileData.address}
+                  onChange={handleChangeProfile}
                   className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                   placeholder="Address"
                 />

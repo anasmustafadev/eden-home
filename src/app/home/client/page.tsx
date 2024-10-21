@@ -34,6 +34,9 @@ const Page = () => {
       });
   }, []);
   const headers = ["No.", "Name", "CNIC", "Phone", "Address"];
+
+  const [isModalAdd, setIsModalAdd] = useState(true);
+
   const clientData = clients.map((client) => [
     client.id.toString(), // No.
     client.name, // Name
@@ -48,7 +51,10 @@ const Page = () => {
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
-      onClick: () => openBackdrop(),
+      onClick: () => {
+        setIsModalAdd(false);
+        openBackdrop();
+      },
     },
   ]);
 
@@ -64,7 +70,12 @@ const Page = () => {
 
   return (
     <>
-      <AddClient isOpen={isOpen} onClose={onClose} setIsOpen={setIsOpen} />
+      <AddClient
+        isOpen={isOpen}
+        onClose={onClose}
+        setIsOpen={setIsOpen}
+        isModalAdd={isModalAdd}
+      />
       <div>
         <div className="flex w-full flex-col gap-5">
           <Card>
@@ -96,7 +107,10 @@ const Page = () => {
                     <DropdownMenuSeparator className="my-1 border-t" />
 
                     <DropdownMenuItem
-                      onClick={() => openBackdrop()}
+                      onClick={() => {
+                        setIsModalAdd(true);
+                        openBackdrop();
+                      }}
                       className="flex items-center rounded px-4 py-2 hover:opacity-90"
                     >
                       <FaPlus className="mr-2" />

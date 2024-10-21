@@ -6,8 +6,9 @@ interface AddPlotProps {
   isOpen: boolean;
   onClose: () => void;
   setIsOpen: (type: boolean) => void;
+  isModalAdd: boolean;
 }
-const AddPlot = ({ isOpen, onClose, setIsOpen }: AddPlotProps) => {
+const AddPlot = ({ isOpen, onClose, setIsOpen, isModalAdd }: AddPlotProps) => {
   const defaultValue = {
     number: 0,
     type: 0,
@@ -77,8 +78,14 @@ const AddPlot = ({ isOpen, onClose, setIsOpen }: AddPlotProps) => {
     });
   }
   const handleSubmit = () => {
-    setForm(() => defaultValue);
+    // Implement API call here
+    if (isModalAdd == true) {
+      console.log("Add");
+    } else {
+      console.log("Update");
+    }
     onClose();
+    setForm(() => defaultValue);
   };
   return (
     <div>
@@ -287,7 +294,7 @@ const AddPlot = ({ isOpen, onClose, setIsOpen }: AddPlotProps) => {
             <div className="mt-5 flex justify-between">
               <button
                 className="rounded-lg border-2 border-blue-500 px-4 py-2 font-semibold text-blue-500 transition-colors duration-300 ease-in-out hover:bg-blue-500 hover:text-white"
-                onClick={() => handleSubmit}
+                onClick={handleSubmit}
               >
                 Save
               </button>
