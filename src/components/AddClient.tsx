@@ -44,7 +44,6 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
     });
   }
   const handleSubmit = () => {
-    // Handle form submission
     onClose();
   };
   return (

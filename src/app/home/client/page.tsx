@@ -60,6 +60,14 @@ const Page = () => {
       "Layyah",
     ],
   ];
+
+  const defaultValue = {
+    type: 0,
+    name: "",
+    cnic: "",
+    contact: "",
+    address: "",
+  };
   const headers = ["No.", "Type", "Name", "CNIC", "Address"];
   const buttons = plotData.map(() => [
     {
