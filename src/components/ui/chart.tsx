@@ -1,7 +1,15 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
+import {
+  NameType,
+  Payload,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 import { cn } from "~/lib/utils";
 
@@ -134,15 +142,13 @@ const ChartTooltipContent = React.forwardRef<
     const { config } = useChart();
 
     const tooltipLabel = React.useMemo(() => {
-      if (hideLabel ?? !payload?.length) {
+      if (hideLabel || !payload?.length) {
         return null;
       }
 
       const [item] = payload;
-      const key =
-        item != undefined &&
-        `${labelKey ?? item.dataKey ?? item.name ?? "value"}`;
-      const itemConfig = getPayloadConfigFromPayload(config, item, String(key));
+      const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
+      const itemConfig = getPayloadConfigFromPayload(config, item, key);
       const value =
         !labelKey && typeof label === "string"
           ? (config[label]?.label ?? label)
@@ -190,6 +196,7 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const indicatorColor = color ?? item.payload.fill ?? item.color;
 
             return (
@@ -288,7 +295,7 @@ const ChartLegendContent = React.forwardRef<
         )}
       >
         {payload.map((item) => {
-          const key = `${nameKey ?? item.dataKey ?? "value"}`;
+          const key = `${nameKey || item.dataKey || "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
           return (
