@@ -1,130 +1,84 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
   index,
-  integer,
   pgTableCreator,
-  primaryKey,
   serial,
-  text,
-  timestamp,
   varchar,
+  integer,
+  real,
+  timestamp,
 } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = pgTableCreator((name) => `eden-home_${name}`);
+// Create table with project-specific prefix
+export const createTable = pgTableCreator((name) => `eden_home_${name}`);
 
-export const posts = createTable(
-  "post",
+/////////////////////////
+// Person Table
+/////////////////////////
+
+export const person = createTable(
+  "person",
   {
     id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("created_by", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
-    ),
+    name: varchar("name", { length: 256 }).notNull(),
+    cnic: varchar("cnic", { length: 15 }).notNull(), // Assuming Pakistani CNIC format
+    phone: varchar("phone", { length: 15 }).notNull(),
+    address: varchar("address", { length: 512 }).notNull(),
   },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
+  (person) => ({
+    cnicIndex: index("cnic_idx").on(person.cnic),
+  }),
 );
 
-export const users = createTable("user", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
-  emailVerified: timestamp("email_verified", {
-    mode: "date",
-    withTimezone: true,
-  }).default(sql`CURRENT_TIMESTAMP`),
-  image: varchar("image", { length: 255 }),
+/////////////////////////
+// Client Table
+/////////////////////////
+
+export const client = createTable("client", {
+  clientId: serial("client_id").primaryKey(),
+  type: integer("type").references(() => lookup.id), // Purchaser = 0 from Lookup
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-}));
+/////////////////////////
+// Plot Table
+/////////////////////////
 
-export const accounts = createTable(
-  "account",
-  {
-    userId: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    type: varchar("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
-    provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("provider_account_id", {
-      length: 255,
-    }).notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: varchar("token_type", { length: 255 }),
-    scope: varchar("scope", { length: 255 }),
-    id_token: text("id_token"),
-    session_state: varchar("session_state", { length: 255 }),
-  },
-  (account) => ({
-    compoundKey: primaryKey({
-      columns: [account.provider, account.providerAccountId],
-    }),
-    userIdIdx: index("account_user_id_idx").on(account.userId),
-  })
-);
+export const plot = createTable("plot", {
+  plotId: serial("plot_id").primaryKey(),
+  type: integer("type").references(() => lookup.id), // Plot Types: 1=Commercial, 2=Residential
+  area: integer("area").notNull(), // In Marla
+  width: real("width").notNull(), // Width in feet.inches
+  height: real("height").notNull(), // Height in feet.inches
+  ratePerMarla: integer("rate_per_marla").notNull(),
+  price: integer("price").default(0), // Derived attribute (can be calculated in app logic)
+  feature: integer("feature").references(() => lookup.id), // Plot Features: 7=Park Facing, 8=Main Facing
+  total: integer("total").default(0), // Derived total price
+});
 
-export const accountsRelations = relations(accounts, ({ one }) => ({
-  user: one(users, { fields: [accounts.userId], references: [users.id] }),
-}));
+/////////////////////////
+// Allotment Table
+/////////////////////////
 
-export const sessions = createTable(
-  "session",
-  {
-    sessionToken: varchar("session_token", { length: 255 })
-      .notNull()
-      .primaryKey(),
-    userId: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    expires: timestamp("expires", {
-      mode: "date",
-      withTimezone: true,
-    }).notNull(),
-  },
-  (session) => ({
-    userIdIdx: index("session_user_id_idx").on(session.userId),
-  })
-);
+export const allotment = createTable("allotment", {
+  allotmentId: serial("allotment_id").primaryKey(),
+  allotmentDate: timestamp("allotment_date", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  clientId: integer("client_id").references(() => client.clientId),
+  plotId: integer("plot_id").references(() => plot.plotId),
+  months: integer("months").notNull(), // Total months for installment
+  installmentType: integer("installment_type").references(() => lookup.id), // Installment types
+  advancePercentage: integer("advance_percentage").notNull(),
+  advanceTotal: integer("advance_total").default(0), // Derived attribute
+  allotedBy: integer("alloted_by").notNull(), // Allotted by User ID
+});
 
-export const sessionsRelations = relations(sessions, ({ one }) => ({
-  user: one(users, { fields: [sessions.userId], references: [users.id] }),
-}));
+/////////////////////////
+// Lookup Table with values
+/////////////////////////
 
-export const verificationTokens = createTable(
-  "verification_token",
-  {
-    identifier: varchar("identifier", { length: 255 }).notNull(),
-    token: varchar("token", { length: 255 }).notNull(),
-    expires: timestamp("expires", {
-      mode: "date",
-      withTimezone: true,
-    }).notNull(),
-  },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
-);
+export const lookup = createTable("lookup", {
+  id: serial("id").primaryKey(),
+  value: varchar("value", { length: 256 }).notNull(),
+  description: varchar("description", { length: 512 }).notNull(),
+});

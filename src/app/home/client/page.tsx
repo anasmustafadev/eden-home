@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import PageHeader from "~/components/PageHeader";
 import { MdLandscape } from "react-icons/md";
@@ -7,6 +7,7 @@ import AppTable from "~/components/Table";
 import { FaPlus, FaPrint } from "react-icons/fa";
 import { useState } from "react";
 import AddClient from "~/components/AddClient";
+import "axios";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,60 +17,32 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { IoMdMenu } from "react-icons/io";
+import axios from "axios";
+import { type personType } from "~/types/personType";
 
 const Page = () => {
-  const plotData = [
-    [
-      "1",
-      "Purchaser",
-      "Mudassir",
-      "34032-123123123-1",
-      "03107206547",
-      "Layyah",
-    ],
-    [
-      "1",
-      "Purchaser",
-      "Mudassir",
-      "34032-123123123-1",
-      "03107206547",
-      "Layyah",
-    ],
-    [
-      "1",
-      "Purchaser",
-      "Mudassir",
-      "34032-123123123-1",
-      "03107206547",
-      "Layyah",
-    ],
-    [
-      "1",
-      "Purchaser",
-      "Mudassir",
-      "34032-123123123-1",
-      "03107206547",
-      "Layyah",
-    ],
-    [
-      "1",
-      "Purchaser",
-      "Mudassir",
-      "34032-123123123-1",
-      "03107206547",
-      "Layyah",
-    ],
-  ];
-
-  const defaultValue = {
-    type: 0,
-    name: "",
-    cnic: "",
-    contact: "",
-    address: "",
+  const [clients, setClients] = useState<personType[]>([]);
+  const getUsers = async (): Promise<personType[]> => {
+    const response = await axios.get("/api/clients");
+    return response.data as personType[];
   };
-  const headers = ["No.", "Type", "Name", "CNIC", "Address"];
-  const buttons = plotData.map(() => [
+  useEffect(() => {
+    getUsers()
+      .then((data) => setClients(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
+  }, []);
+  const headers = ["No.", "Name", "CNIC", "Phone", "Address"];
+  const clientData = clients.map((client) => [
+    client.id.toString(), // No.
+    client.name, // Name
+    client.cnic, // CNIC
+    client.phone, // Phone
+    client.address, // Address
+  ]);
+
+  const buttons = clients.map(() => [
     {
       label: "Update",
       className:
@@ -138,8 +111,8 @@ const Page = () => {
                 </DropdownMenu>
               </div>
             </CardHeader>
-            <CardContent className="max-w-90% flex gap-2">
-              <AppTable data={plotData} headers={headers} buttons={buttons} />
+            <CardContent className="flex gap-2">
+              <AppTable data={clientData} headers={headers} buttons={buttons} />
             </CardContent>
           </Card>
         </div>
