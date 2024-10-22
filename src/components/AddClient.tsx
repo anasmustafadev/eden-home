@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Backdrop from "~/components/Backdrop";
 import {
   Card,
@@ -36,12 +36,23 @@ const AddClient = ({
     type: 0,
     name: "",
     cnic: "",
-    address: "",
     phone: "",
+    address: "",
   };
 
   const [form, setForm] = useState<Form>(defaultValue);
-
+  useEffect(()=>{
+    if(isModalAdd==false){
+      const updatedForm = {
+        type: Number(updateData[0]),
+        name: String(updateData[1]),
+        cnic: String(updateData[2]),
+        phone: String(updateData[3]),
+        address: String(updateData[4]),
+      };
+      setForm(updatedForm);
+    }
+  },[updateData])
   function setFormValue(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) {
@@ -60,6 +71,7 @@ const AddClient = ({
       console.log(updateData);
       console.log("Update");
     }
+    setForm(() => defaultValue);
     onClose();
   };
   return (
@@ -143,9 +155,7 @@ const AddClient = ({
                   className="rounded-lg border-2 border-red-500 px-4 py-2 font-semibold text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
                   onClick={() => {
                     setIsOpen(false);
-                    setForm((prev) => {
-                      return { ...prev, defaultValue };
-                    });
+                    setForm(() => defaultValue);
                   }}
                 >
                   Exit

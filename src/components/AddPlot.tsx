@@ -33,9 +33,31 @@ const AddPlot = ({
     feature: 0,
     total: 0,
   };
+ 
+  
 
   const [form, setForm] = useState(defaultValue);
 
+  useEffect(() => {
+    if(isModalAdd==false){
+    const dimension = updateData[3]?.toString().split("x");
+    const updatedForm = {
+      number: Number(updateData[0]), 
+      type: updateData[1] === "Residential" ? 1 : updateData[1] === "Commercial" ? 2 : 0, 
+      area: Number(updateData[2]?.toString().split(" ")[0]), 
+      feet1: Number(dimension ? dimension[0]?.split(".")[0] : "0"), 
+      inch1: Number(dimension ? dimension[0]?.split(".")[1] : "0"),
+      feet2: Number(dimension ? dimension[1]?.split(".")[0] : "0"),
+      inch2: Number(dimension ? dimension[1]?.split(".")[1] : "0"), 
+      rate: Number(updateData[4]), 
+      price: Number(updateData[5]), 
+      feature: 0, 
+      total: Number(updateData[6]), 
+    };
+    
+    setForm(updatedForm);
+    }
+  }, [updateData]);
   useEffect(() => {
     setForm((prev) => {
       if (prev.rate != undefined && prev.area != undefined) {
@@ -128,7 +150,7 @@ const AddPlot = ({
                 </select>
               </div>
               <div>
-                <p>Area</p>
+                <p>Area(Marla)</p>
                 <input
                   placeholder="20"
                   type="text"
@@ -141,13 +163,13 @@ const AddPlot = ({
             </div>
             <div className="mt-5 flex items-center justify-around gap-10">
               <div>
-                <h3>Lenght</h3>
+                <h3>Width</h3>
               </div>
               <div>
                 <h3>X</h3>
               </div>
               <div>
-                <h3>Width</h3>
+                <h3>Height</h3>
               </div>
             </div>
             <div className="mt-5 flex items-center justify-around gap-10">

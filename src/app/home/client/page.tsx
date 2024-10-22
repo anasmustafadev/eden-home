@@ -39,20 +39,20 @@ const Page = () => {
   const [isModalAdd, setIsModalAdd] = useState(true);
 
   const clientData = clients.map((client) => [
-    client.id.toString(), // No.
-    client.name, // Name
-    client.cnic, // CNIC
-    client.phone, // Phone
-    client.address, // Address
+    client.id.toString(), 
+    client.name, 
+    client.cnic, 
+    client.phone, 
+    client.address, 
   ]);
 
-  const buttons = clients.map(() => [
+  const buttons = clientData.map((element) => [
     {
       label: "Update",
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
-      data: updateData,
+      data: element,
       onClick: () => {
         setIsModalAdd(false);
         openBackdrop();
