@@ -34,6 +34,7 @@ const Page = () => {
       });
   }, []);
   const headers = ["No.", "Name", "CNIC", "Phone", "Address"];
+  const [updateData, setUpdateData] = useState([0, "", "", "", ""]);
 
   const [isModalAdd, setIsModalAdd] = useState(true);
 
@@ -51,6 +52,7 @@ const Page = () => {
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
+      data: updateData,
       onClick: () => {
         setIsModalAdd(false);
         openBackdrop();
@@ -75,6 +77,7 @@ const Page = () => {
         onClose={onClose}
         setIsOpen={setIsOpen}
         isModalAdd={isModalAdd}
+        updateData={updateData}
       />
       <div>
         <div className="flex w-full flex-col gap-5">
@@ -126,7 +129,12 @@ const Page = () => {
               </div>
             </CardHeader>
             <CardContent className="flex gap-2">
-              <AppTable data={clientData} headers={headers} buttons={buttons} />
+              <AppTable
+                data={clientData}
+                headers={headers}
+                buttons={buttons}
+                setUpdateData={setUpdateData}
+              />
             </CardContent>
           </Card>
         </div>

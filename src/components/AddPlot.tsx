@@ -7,8 +7,15 @@ interface AddPlotProps {
   onClose: () => void;
   setIsOpen: (type: boolean) => void;
   isModalAdd: boolean;
+  updateData: (string | number)[];
 }
-const AddPlot = ({ isOpen, onClose, setIsOpen, isModalAdd }: AddPlotProps) => {
+const AddPlot = ({
+  isOpen,
+  onClose,
+  setIsOpen,
+  isModalAdd,
+  updateData,
+}: AddPlotProps) => {
   const defaultValue = {
     number: 0,
     type: 0,
@@ -78,10 +85,10 @@ const AddPlot = ({ isOpen, onClose, setIsOpen, isModalAdd }: AddPlotProps) => {
     });
   }
   const handleSubmit = () => {
-    // Implement API call here
     if (isModalAdd == true) {
       console.log("Add");
     } else {
+      console.log(updateData);
       console.log("Update");
     }
     onClose();

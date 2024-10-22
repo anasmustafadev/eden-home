@@ -14,6 +14,7 @@ interface AddClientProps {
   onClose: () => void;
   setIsOpen: (type: boolean) => void;
   isModalAdd: boolean;
+  updateData: (string | number)[];
 }
 
 const AddClient = ({
@@ -21,6 +22,7 @@ const AddClient = ({
   onClose,
   setIsOpen,
   isModalAdd,
+  updateData,
 }: AddClientProps) => {
   interface Form {
     type: number;
@@ -55,6 +57,7 @@ const AddClient = ({
     if (isModalAdd == true) {
       console.log("Add");
     } else if (isModalAdd == false) {
+      console.log(updateData);
       console.log("Update");
     }
     onClose();

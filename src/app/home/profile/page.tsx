@@ -31,6 +31,7 @@ const Page = () => {
       label: "Update",
       className: "bg-blue-500 text-white px-3 py-2 rounded mr-1",
       actionType: "UPDATE",
+      data: ["", ""],
       onClick: () => {
         openBackdrop(k);
       },
@@ -266,7 +267,12 @@ const Page = () => {
           <Card>
             <CardHeader>
               <h1 className="text-2xl">Users</h1>
-              <AppTable data={userData} headers={headers} buttons={buttons} />
+              <AppTable
+                data={userData}
+                headers={headers}
+                buttons={buttons}
+                setUpdateData={() => console.log("To bo Implemented")}
+              />
               <button
                 onClick={() => openBackdrop(3)}
                 className="mt-5 flex w-32 items-center rounded bg-blue-500 px-4 py-2 text-white hover:opacity-90"

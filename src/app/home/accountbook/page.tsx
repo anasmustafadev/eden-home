@@ -19,6 +19,7 @@ const Page = () => {
       label: "Detail",
       className: "bg-blue-500 text-white px-3 py-2 rounded mr-1",
       actionType: "DETAIL",
+      data: ["", ""],
       onClick: () => {
         console.log("To be implemented");
       },
@@ -191,7 +192,12 @@ const Page = () => {
                 Daily Cash
               </button>
             </div>
-            <AppTable data={ledgerData} headers={headers} buttons={buttons} />
+            <AppTable
+              data={ledgerData}
+              headers={headers}
+              buttons={buttons}
+              setUpdateData={() => console.log("To be Implemented")}
+            />
           </CardHeader>
         </Card>
       </div>

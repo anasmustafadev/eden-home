@@ -67,7 +67,7 @@ const Page = () => {
       },
     },
   ]);
-  const [updateData, setUpdateData] = useState([
+  const [updateData, setUpdateData] = useState<(string | number)[]>([
     "",
     "",
     "",
@@ -94,6 +94,7 @@ const Page = () => {
         onClose={onClose}
         setIsOpen={setIsOpen}
         isModalAdd={isModalAdd}
+        updateData={updateData}
       />
       <div>
         <div className="flex w-full flex-col gap-5">
@@ -145,7 +146,12 @@ const Page = () => {
               </div>
             </CardHeader>
             <CardContent className="flex gap-2">
-              <AppTable data={plotData} headers={headers} buttons={buttons} />
+              <AppTable
+                data={plotData}
+                headers={headers}
+                buttons={buttons}
+                setUpdateData={setUpdateData}
+              />
             </CardContent>
           </Card>
         </div>

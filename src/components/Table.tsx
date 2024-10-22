@@ -13,13 +13,15 @@ interface ButtonConfig {
   label: string;
   className: string;
   actionType: string;
-  onClick: MouseEventHandler<HTMLButtonElement>;
+  data: (string | number)[];
+  onClick: () => void;
 }
 
 interface TableProps {
   data: string[][];
   headers: string[];
   buttons: ButtonConfig[][];
+  setUpdateData: React.Dispatch<React.SetStateAction<(string | number)[]>>;
 }
 
 // function Table({ data, headers, buttons }: TableProps) {
@@ -78,7 +80,7 @@ interface TableProps {
 //   );
 // }
 
-function AppTable({ data, headers, buttons }: TableProps) {
+function AppTable({ data, headers, buttons, setUpdateData }: TableProps) {
   return (
     <Table className="min-w-64 max-w-full">
       <TableHeader>
@@ -116,7 +118,10 @@ function AppTable({ data, headers, buttons }: TableProps) {
                 <button
                   key={buttonIndex}
                   className={button.className}
-                  onClick={button.onClick}
+                  onClick={() => {
+                    setUpdateData(() => button.data);
+                    button.onClick();
+                  }}
                 >
                   {button.label}
                 </button>
