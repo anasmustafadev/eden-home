@@ -76,19 +76,30 @@ const Page = () => {
     "Installment",
     "No of Installments",
   ];
-  const buttons = plotData.map(() => [
+  const buttons = plotData.map((element) => [
     {
       label: "Update",
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
+      data: element,
       onClick: () => {
         setIsModalAdd(false);
         openBackdrop();
       },
     },
   ]);
-
+  const [updateData, setUpdateData] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
   const [isOpen, setIsOpen] = useState(false);
   const [isModalAdd, setIsModalAdd] = useState(true);
   const onClose = () => {
