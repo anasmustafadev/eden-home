@@ -5,7 +5,7 @@ import PageHeader from "~/components/PageHeader";
 import { MdLandscape } from "react-icons/md";
 import AppTable from "~/components/Table";
 import { FaPlus, FaPrint } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddPlot from "~/components/AddPlot";
 import axios from "axios";
 import {
