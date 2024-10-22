@@ -5,8 +5,9 @@ import PageHeader from "~/components/PageHeader";
 import { MdLandscape } from "react-icons/md";
 import AppTable from "~/components/Table";
 import { FaPlus, FaPrint } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddPlot from "~/components/AddPlot";
+import axios from "axios";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,55 +17,34 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { IoMdMenu } from "react-icons/io";
+import { type plotType } from "~/types/plotType";
 
 const Page = () => {
-  const plotData = [
-    [
-      "1",
-      "Shop Commercial",
-      "1 Marla",
-      "27x10",
-      "2,000,000",
-      "2,000,000",
-      "4,000,000",
-      "33,333.33",
-      "48",
-    ],
-    [
-      "2",
-      "Shop Commercial",
-      "1.5 Marla",
-      "27x10",
-      "400,000",
-      "600,000",
-      "120,000",
-      "10,000",
-      "48",
-    ],
-    [
-      "3",
-      "Plot Residential",
-      "5 Marla",
-      "50x27",
-      "250,000",
-      "1,250,000",
-      "250,000",
-      "20,833.33",
-      "48",
-    ],
-    [
-      "4",
-      "Plot Residential",
-      "6.67 Marla",
-      "45x40",
-      "250,000",
-      "1,666,667",
-      "333,333",
-      "27,777.78",
-      "48",
-    ],
-    ["5", "Plot Residential", "0 Marla", "30x50", "0", "0", "0", "0", "48"],
-  ];
+  const [plots, setPlots] = useState<plotType[]>([]);
+  const getPlots = async (): Promise<plotType[]> => {
+    const response = await axios.get("/api/plots");
+    return response.data as plotType[];
+  };
+  useEffect(() => {
+    getPlots()
+      .then((data) => setPlots(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
+  }, []);
+  const transformPlotData = (plots: plotType[]) => {
+    return plots.map((plot) => [
+      plot.plotId.toString(), // No.
+      plot.type === 1 ? "Commercial" : "Residential", // Plot Type
+      `${plot.area} Marla`, // Area
+      `${plot.width}x${plot.height}`, // Size
+      plot.ratePerMarla.toString(), // Rate
+      plot.price ? plot.price.toString() : "0", // Amount
+      plot.total ? plot.total.toString() : "0",
+    ]);
+  };
+  const plotData = transformPlotData(plots);
+
   const headers = [
     "No.",
     "Plot",
@@ -72,9 +52,7 @@ const Page = () => {
     "Size",
     "Rate",
     "Amount",
-    "Advance",
-    "Installment",
-    "No of Installments",
+    "Total Amount",
   ];
   const buttons = plotData.map((element) => [
     {
