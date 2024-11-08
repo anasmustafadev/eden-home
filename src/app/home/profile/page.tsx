@@ -14,7 +14,7 @@ const Page = () => {
     ["1", "Anas Mustafa", "0343123123", "Lahore", "ANAS", "********"],
     ["2", "Mudassir", "0343126153", "Lahore", "MUDASSIR", "********"],
     ["3", "AbdulRehman", "0325673123", "Lahore", "ABDULREHMAN", "********"],
-    [" ", " ", " ", " ", " ", " "],
+    ["", "", "", "", "", ""],
   ]);
 
   const headers = [
@@ -50,6 +50,8 @@ const Page = () => {
   //   setIndex(index);
   //   setIsOpen(true);
   // };
+  
+  const [heading,setHeading]=useState("");
 
   const defaultValue = {
     name: "",
@@ -118,9 +120,9 @@ const Page = () => {
     <>
       <Backdrop isOpen={isOpen} onClose={onClose}>
         <Card>
-          <div className="w-[30rem] p-5">
-            <h1 className="text-3xl text-gray-800">Update User Details</h1>
-            <div>
+          <div className="w-[30rem] h-[90vh] p-5 overflow-y-auto">
+            <h1 className="text-3xl text-gray-800 p-2">{heading==""?"Update User Details":heading}</h1>
+            <div className="flex flex-col gap-4">
               <div>
                 <p>Name:</p>
                 <input
@@ -180,7 +182,9 @@ const Page = () => {
             <div className="mt-5 flex justify-between">
               <button
                 className="rounded bg-blue-500 px-3 py-2"
-                onClick={() => setIsOpen(false)}
+                onClick={() =>{ setIsOpen(false)
+                  setHeading("");
+                }}
               >
                 Save
               </button>
@@ -188,6 +192,7 @@ const Page = () => {
                 className="rounded bg-red-500 px-3 py-2"
                 onClick={() => {
                   setIsOpen(false);
+                  setHeading("");
                   setFormData((prev) => {
                     return { ...prev, defaultValue };
                   });
@@ -274,7 +279,9 @@ const Page = () => {
                 setUpdateData={() => console.log("To bo Implemented")}
               />
               <button
-                onClick={() => openBackdrop(3)}
+                onClick={() =>{ openBackdrop(3)
+                  setHeading("Add User Details")
+                }}
                 className="mt-5 flex w-32 items-center rounded bg-blue-500 px-4 py-2 text-white hover:opacity-90"
               >
                 <FaPlus className="mr-2" />

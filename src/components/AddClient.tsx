@@ -77,11 +77,11 @@ const AddClient = ({
   return (
     <div>
       <Backdrop isOpen={isOpen} onClose={onClose}>
-        <Card className="flex min-w-[20rem] max-w-[30rem] flex-col items-center">
+        <Card className="flex h-[90vh] min-w-[20rem] max-w-[30rem] flex-col items-center overflow-y-auto">
           <CardHeader className="flex">
             <CardTitle className="mx-auto mb-5 text-3xl">Client Menu</CardTitle>
           </CardHeader>
-          <CardContent className="flex w-[20rem] flex-col flex-wrap p-5">
+          <CardContent className="flex w-auto flex-col flex-wrap p-5">
             <div className="flex flex-col items-center gap-2">
               <div className="w-full">
                 <p>Type</p>
@@ -101,7 +101,7 @@ const AddClient = ({
               <div className="w-full">
                 <p>Name</p>
                 <input
-                  placeholder="Residential"
+                  placeholder="Mudasir"
                   type="text"
                   name="name"
                   onChange={setFormValue}

@@ -22,6 +22,7 @@ const DeletePermanentAllotment = ({isOpen,onClose,setIsOpen}:DeletePermanentAllo
       const handleSubmit = () => {
         // Handle form submission
         onClose();
+        setFormData(defaultValue);
       };
   return (
     <div>    
@@ -80,8 +81,7 @@ const DeletePermanentAllotment = ({isOpen,onClose,setIsOpen}:DeletePermanentAllo
               <button
                 className="border-2 border-red-500 text-red-500 font-semibold py-2 px-4 rounded-lg hover:bg-red-500 hover:text-white transition-colors duration-300 ease-in-out"
                 onClick={() =>{ setIsOpen(false)
-                    setFormData((prev) => {
-                        return {...prev,defaultValue}})
+                  setFormData(defaultValue);
                 }
               }
               >
