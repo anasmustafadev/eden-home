@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "~/styles/globals.css";
 
 const poppins = Poppins({
-  weight: "100",
+  weight: "400",
   subsets: ["latin"],
   variable: "--poppin",
 });
