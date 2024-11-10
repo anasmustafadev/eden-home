@@ -20,8 +20,55 @@ import AddReturnAmount from "~/components/AddReturnAmount";
 import AddMultiInstallment from "~/components/AddMultiInstallment";
 import CancelAllotment from "~/components/CancelAllotment";
 import DeletePermanentAllotment from "~/components/DeletePermanentAllotment";
+import { object } from "zod";
+
+interface FormErrors {
+  date?: string;
+  plot?: string;
+  amount?: string;
+  description?: string;
+}
 
 const Page = () => {
+  
+  const decimalRegex = /^\d+(\.\d+)?$/;
+  const alphabetsRegex = /^[A-Za-z\s]{1,100}$/;
+  const validateAdvanceInstallmentAndReturnAmountForm = (formData:any,setErrors:(updateFn: (prevErrors: FormErrors) => FormErrors)=>void)=>{
+    let validation = true;
+    if(!formData.date){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        date:"Date is Required",
+      }));
+      validation=false;
+    }
+    if(!formData.plot){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        plot:"Plot type is Required",
+      }));
+      validation=false;
+    }
+    if(!decimalRegex.test(formData.amount.toString()) || formData.amount<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        amount:"Must be number",
+      }));
+      validation=false;
+    }
+    if(!alphabetsRegex.test(formData.description)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        description:"Must be alphabets and can't exceed 100 characters.",
+      }));
+      validation=false;
+    }
+    if(validation){
+      return true
+    }else{
+      return false
+    }
+  }
   const allotmentData = [
     [
       "1",
@@ -148,18 +195,21 @@ const Page = () => {
         onClose={onCloseAddAdvance}
         setIsOpen={setIsAddAdvanceOpen}
         heading={heading}
+        validateForm={validateAdvanceInstallmentAndReturnAmountForm}
       />
       <AddInstallment
         isOpen={isAddInstallmentOpen}
         onClose={onCloseAddInstallment}
         setIsOpen={setIsAddInstallmentOpen}
         heading={heading}
+        validateForm={validateAdvanceInstallmentAndReturnAmountForm}
       />
       <AddReturnAmount
         isOpen={isReturnAmountOpen}
         onClose={onCloseReturnAmount}
         setIsOpen={setIsReturnAmountOpen}
         heading={heading}
+        validateForm={validateAdvanceInstallmentAndReturnAmountForm}
       />
       <AddMultiInstallment
         isOpen={isAddMultiInstallmentOpen}

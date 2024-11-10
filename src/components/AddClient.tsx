@@ -39,7 +39,14 @@ const AddClient = ({
     phone: "",
     address: "",
   };
-
+  const errorsDefault = {
+    type: "",
+    name: "",
+    cnic: "",
+    phone: "",
+    address: "",
+  };
+  const [errors,setErrors]=useState(errorsDefault);
   const [form, setForm] = useState<Form>(defaultValue);
   useEffect(()=>{
     if(isModalAdd==false){
@@ -63,17 +70,74 @@ const AddClient = ({
           e.target.name == "type" ? Number(e.target.value) : e.target.value,
       };
     });
+    setErrors({ ...errors, [e.target.name]: "" });
   }
   const handleSubmit = () => {
-    if (isModalAdd == true) {
-      console.log("Add");
-    } else if (isModalAdd == false) {
-      console.log(updateData);
-      console.log("Update");
-    }
-    setForm(() => defaultValue);
-    onClose();
+    if(validateAddress(form.address) || validateCnicNumber(form.cnic) || validateName(form.name) || validatePhoneNumber(form.phone) || validateType(form.type)){
+       if (isModalAdd == true) {
+         console.log("Add");
+       } else if (isModalAdd == false) {
+         console.log(updateData);
+         console.log("Update");
+       }
+       setForm(() => defaultValue);
+       onClose();
+  }
   };
+  const validateType=(type:number)=>{
+    if(type===0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+       type: "Type is required",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validateName = (name:string)=>{
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if(!name || !nameRegex.test(name)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        name: "Please enter a valid name.",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validatePhoneNumber = (phone:string)=>{
+    const phoneRegex = /^\+[1-9]{1}[0-9]{7,14}$/;
+    if(!phone || !phoneRegex.test(phone)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        phone: "Please enter a valid phone number in international format (e.g., +923058111211).",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validateCnicNumber = (cnic:string)=>{
+    const cnicRegex=/^\d{5}-\d{7}-\d{1}$/;
+    if(!cnic || !cnicRegex.test(cnic)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        cnic: "Please enter a valid cnic number in format (e.g., 32203-4060544-5).",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validateAddress=(address:string)=>{
+    if(!address || address.trim()===""){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        address:
+          "Please enter a valid address.",
+      }));
+      return false;
+    }
+    return true;
+  }
   return (
     <div>
       <Backdrop isOpen={isOpen} onClose={onClose}>
@@ -97,6 +161,9 @@ const AddClient = ({
                   <option value={3}>Employees</option>
                   <option value={4}>Banks</option>
                 </select>
+                {errors.type && (
+                 <p className="text-red-500 text-sm">{errors.type}</p>
+            )}
               </div>
               <div className="w-full">
                 <p>Name</p>
@@ -108,6 +175,9 @@ const AddClient = ({
                   value={form.name}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
+                {errors.name && (
+                 <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
               </div>
               <div className="w-full">
                 <p>CNIC</p>
@@ -119,17 +189,23 @@ const AddClient = ({
                   value={form.cnic}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
+                {errors.cnic && (
+                 <p className="text-red-500 text-sm">{errors.cnic}</p>
+            )}
               </div>
               <div className="w-full">
                 <p>Phone</p>
                 <input
-                  placeholder="03058111211"
+                  placeholder="+923058111211"
                   type="text"
                   name="phone"
                   onChange={setFormValue}
                   value={form.phone}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
+                {errors.phone && (
+                 <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
               </div>
               <div className="w-full">
                 <p>Address</p>
@@ -141,6 +217,9 @@ const AddClient = ({
                   value={form.address}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
+                {errors.address && (
+                 <p className="text-red-500 text-sm">{errors.address}</p>
+            )}
               </div>
             </div>
             <CardFooter className="mt-5 w-full">
@@ -156,6 +235,7 @@ const AddClient = ({
                   onClick={() => {
                     setIsOpen(false);
                     setForm(() => defaultValue);
+                    setErrors(errorsDefault);
                   }}
                 >
                   Exit

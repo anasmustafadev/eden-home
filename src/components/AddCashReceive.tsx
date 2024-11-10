@@ -16,6 +16,14 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
         amount:0,
         description:""
       };
+      const errorsDefault = {
+        date: "",
+        accountBook: "",
+        party: "",
+        amount: "",
+        description: "",
+      };
+      const [errors,setErrors]=useState(errorsDefault);
       const [formData,setFormData]=useState(defaultValue);
       const handleChange = (
         e: React.ChangeEvent<
@@ -24,13 +32,62 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
       ) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        setErrors({ ...errors, [name]: "" });
       };
     
       const handleSubmit = () => {
         // Handle form submission
-        onClose();
-        setFormData(defaultValue);
+        if(validateForm()){
+          onClose();
+          setFormData(defaultValue);
+        }
       };
+
+  const decimalRegex = /^\d+(\.\d+)?$/;
+  const alphabetsRegex = /^[A-Za-z\s]{1,100}$/;
+  const validateForm = ()=>{
+    let validation = true;
+    if(!formData.date){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        date:"Date is Required",
+      }));
+      validation=false;
+    }
+    if(!formData.accountBook){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        accountBook:"Account type is Required",
+      }));
+      validation=false;
+    }
+    if(!formData.party){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        party:"Party type is Required",
+      }));
+      validation=false;
+    }
+    if(!decimalRegex.test(formData.amount.toString()) || formData.amount<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        amount:"Must be number and greater than 0",
+      }));
+      validation=false;
+    }
+    if(!alphabetsRegex.test(formData.description)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        description:"Must be alphabets and can't exceed 100 characters.",
+      }));
+      validation=false;
+    }
+    if(validation){
+      return true
+    }else{
+      return false
+    }
+  }
   return (
     <div>
       <Backdrop
@@ -51,6 +108,9 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.date && (
+                 <p className="text-red-500 text-sm">{errors.date}</p>
+            )}
             </div>
 
             <div>
@@ -58,6 +118,9 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
               <select value={formData.accountBook} name='accountBook' onChange={handleChange} className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm">
                 <option value="">Choose</option>
               </select>
+              {errors.accountBook && (
+                 <p className="text-red-500 text-sm">{errors.accountBook}</p>
+            )}
             </div>
 
             <div>
@@ -65,6 +128,9 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
               <select value={formData.party} name='party' onChange={handleChange} className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm">
               <option value="">Choose</option>
               </select>
+              {errors.party && (
+                 <p className="text-red-500 text-sm">{errors.party}</p>
+            )}
             </div>
 
             <div>
@@ -77,6 +143,9 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+              {errors.amount && (
+                 <p className="text-red-500 text-sm">{errors.amount}</p>
+            )}
             </div>
 
             <div>
@@ -88,6 +157,9 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.description && (
+                 <p className="text-red-500 text-sm">{errors.description}</p>
+            )}
             </div>
             <div className="mt-5 flex justify-between">
               <button
@@ -101,6 +173,7 @@ const AddCashReceive = ({isOpen,onClose,setIsOpen,heading}:AddCashReceiveProps) 
                 onClick={() => {
                   setIsOpen(false);
                   setFormData(defaultValue);
+                  setErrors(errorsDefault);
                 }}
               >
                 Exit

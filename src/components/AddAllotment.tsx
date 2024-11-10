@@ -13,9 +13,9 @@ interface AddAllotmentProps {
 const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
   const defaultValue = {
     date: "",
-    accountBook: 0,
-    client: 0,
-    plot: 0,
+    accountBook: "",
+    client: "",
+    plot: "",
     // heirsName: "",
     // contactNumber: "",
     // cnic: "",
@@ -80,21 +80,21 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
       }));
       validation=false;
     }
-    if(formData.accountBook===0){
+    if(!formData.accountBook){
       setErrors((prevErrors) => ({
         ...prevErrors,
         accountBook:"AccountBook type is required",
       }));
       validation=false;
     }
-    if(formData.client===0){
+    if(!formData.client){
       setErrors((prevErrors) => ({
         ...prevErrors,
         client:"Client type is required",
       }));
       validation=false;
     }
-    if(formData.plot===0){
+    if(!formData.plot){
       setErrors((prevErrors) => ({
         ...prevErrors,
         plot:"Plot type is required",
@@ -190,11 +190,11 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value={0}>Select Account Book</option>
-              <option value={1}>Purchaser</option>
-              <option value={2}>Investor</option>
-              <option value={3}>Employees</option>
-              <option value={4}>Banks</option>
+              <option value="">Select Account Book</option>
+              <option value="purchaser">Purchaser</option>
+              <option value="investor">Investor</option>
+              <option value="employees">Employees</option>
+              <option value="banks">Banks</option>
             </select>
             {errors.accountBook && (
                  <p className="text-red-500 text-sm">{errors.accountBook}</p>
@@ -208,7 +208,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value={0}>Choose</option>
+              <option value="">Choose</option>
             </select>
             {errors.client && (
                  <p className="text-red-500 text-sm">{errors.client}</p>
@@ -222,7 +222,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value={0}>Choose</option>
+              <option value="">Choose</option>
             </select>
             {errors.plot && (
                  <p className="text-red-500 text-sm">{errors.plot}</p>
