@@ -61,13 +61,73 @@ const Page = () => {
     password: "",
   };
   const [formData, setFormData] = useState(defaultValue);
-
+  const [errors, setErrors] = useState(defaultValue);
   const [profileData, setProfileData] = useState(defaultValue);
+  const validateName = (name:string)=>{
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if(!name || !nameRegex.test(name)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        name: "Please enter a valid name.",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validatePhoneNumber = (phone:string)=>{
+    const phoneRegex = /^\+[1-9]{1}[0-9]{7,14}$/;
+    if(!phone || !phoneRegex.test(phone)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        phone: "Please enter a valid phone number in international format (e.g., +1234567890).",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validateUsername = (username: string) => {
+    const usernameRegex = /^[a-z0-9_\.]{6,}$/;
+    if (!usernameRegex.test(username)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        username: "Username must be at least 6 characters long and contain only lowercase letters, numbers, underscores, and periods.",
+      }));
+      return false;
+    }
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password:
+          "Password must be at least 8 characters long, include uppercase, lowercase, a number, and a special character.",
+      }));
+      return false;
+    }
+    return true;
+  };
+  const validateAddress=(address:string)=>{
+    if(!address || address.trim()===""){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        address:
+          "Please enter a valid address.",
+      }));
+      return false;
+    }
+    return true;
+  }
   const handleChangeProfile = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setProfileData({ ...profileData, [name]: value });
+
+        // Clear validation errors on input change
+        setErrors({ ...errors, [name]: "" });
   };
   // Function to close modal
   const onClose = () => {
@@ -97,10 +157,20 @@ const Page = () => {
     if (e.target.name == "Hello") handleSubmit(); // Only for linting purpose. To be removed later.
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+        // Clear validation errors on input change
+        setErrors({ ...errors, [name]: "" });
   };
 
   // Handle form submission
   const handleSubmit = () => {
+    const isValidName = validateName(formData.name);
+    const isValidPhone = validatePhoneNumber(formData.phone);
+    const isValidAddress = validateAddress(formData.address);
+    const isValidUsername = validateUsername(formData.username);
+    const isValidPassword = validatePassword(formData.password);
+
+  if (isValidName && isValidPhone && isValidAddress && isValidUsername && isValidPassword) {
     const updatedData = [...userData];
     if (userData[index] != undefined) {
       updatedData[index] = [
@@ -113,9 +183,21 @@ const Page = () => {
       ];
     }
     setUserData(updatedData);
+    setHeading("");
     onClose();
+   };
   };
 
+  const handleSubmitProfile=()=>{
+    const isValidName = validateName(formData.name);
+    const isValidPhone = validatePhoneNumber(formData.phone);
+    const isValidAddress = validateAddress(formData.address);
+    const isValidUsername = validateUsername(formData.username);
+    const isValidPassword = validatePassword(formData.password);
+    if (isValidName && isValidPhone && isValidAddress && isValidUsername && isValidPassword) {
+      alert("Saved")
+    }
+  }
   return (
     <>
       <Backdrop isOpen={isOpen} onClose={onClose}>
@@ -133,17 +215,19 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.name}
                 />
+                {errors.name && <p className="text-red-500">{errors.name}</p>}
               </div>
               <div>
                 <p>Contact:</p>
                 <input
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                   type="text"
-                  placeholder="Contact"
+                  placeholder="+923058111211"
                   name="phone"
                   onChange={handleChange}
                   value={formData.phone}
                 />
+                {errors.phone && <p className="text-red-500">{errors.phone}</p>}
               </div>
               <div>
                 <p>Address</p>
@@ -155,6 +239,9 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.address}
                 />
+                {errors.address && (
+                  <p className="text-red-500">{errors.address}</p>
+                )}
               </div>
               <div>
                 <p>Username:</p>
@@ -166,6 +253,9 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.username}
                 />
+                {errors.username && (
+                  <p className="text-red-500">{errors.username}</p>
+                )}
               </div>
               <div>
                 <p>Password:</p>
@@ -177,14 +267,15 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.password}
                 />
+                {errors.password && (
+                  <p className="text-red-500">{errors.password}</p>
+                )}
               </div>
             </div>
             <div className="mt-5 flex justify-between">
               <button
                 className="rounded bg-blue-500 px-3 py-2"
-                onClick={() =>{ setIsOpen(false)
-                  setHeading("");
-                }}
+                onClick={handleSubmit}
               >
                 Save
               </button>
@@ -193,6 +284,7 @@ const Page = () => {
                 onClick={() => {
                   setIsOpen(false);
                   setHeading("");
+                  setErrors(defaultValue);
                   setFormData((prev) => {
                     return { ...prev, defaultValue };
                   });
