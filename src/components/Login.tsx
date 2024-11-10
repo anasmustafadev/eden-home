@@ -13,11 +13,47 @@ type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [errors, setErrors] = useState({ username: "", password: "" });
+
+  const validateUsername = (username: string) => {
+    const usernameRegex = /^[a-z0-9_\.]{6,16}$/;
+    if (!usernameRegex.test(username)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        username: "Username must be at least six character long and it contain lowercase letters, numbers, underscores, and periods.",
+      }));
+      return false;
+    }
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,30}$/;
+    if (!passwordRegex.test(password)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password:
+          "Password must be between 8 and 30 character, include uppercase, lowercase, a number, and a special character.",
+      }));
+      return false;
+    }
+    return true;
+  };
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
 
+    // Validate form inputs
+    const usernameValid = validateUsername(formData.username);
+    const passwordValid = validatePassword(formData.password);
+
+    if (!usernameValid || !passwordValid) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Simulate an API call
     setTimeout(() => {
       setIsLoading(false);
     }, 3000);
@@ -34,6 +70,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       ...formData,
       [id]: value,
     });
+
+    // Clear validation errors on input change
+    setErrors({ ...errors, [id]: "" });
   };
 
   return (
@@ -55,6 +94,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoCorrect="off"
               disabled={isLoading}
             />
+             {errors.username && (
+              <p className="text-red-500 text-sm">{errors.username}</p>
+            )}
+
             <Label className="sr-only" htmlFor="password">
               Password
             </Label>
@@ -67,6 +110,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoComplete="current-password"
               disabled={isLoading}
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
           </div>
 
           <Button disabled={isLoading}>

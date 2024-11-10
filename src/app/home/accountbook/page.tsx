@@ -1,11 +1,23 @@
 "use client";
 import React, { useState } from "react";
-import { Card, CardHeader } from "~/components/ui/card";
+import { Card, CardHeader,CardContent,CardTitle } from "~/components/ui/card";
 import PageHeader from "~/components/PageHeader";
 import { FaBook } from "react-icons/fa";
 import AppTable from "~/components/Table";
 import { FaPlus } from "react-icons/fa";
 import Backdrop from "~/components/Backdrop";
+import AddAccountBook from "~/components/AddAccountBook";
+import AddCashPayment from "~/components/AddCashPayment";
+import AddCashReceive from "~/components/AddCashReceive";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { IoMdMenu } from "react-icons/io";
 
 const Page = () => {
   const ledgerData = [
@@ -17,8 +29,10 @@ const Page = () => {
   const buttons = ledgerData.map(() => [
     {
       label: "Detail",
-      className: "bg-blue-500 text-white px-3 py-2 rounded mr-1",
+      className:
+        "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
+      data: ["", ""],
       onClick: () => {
         console.log("To be implemented");
       },
@@ -52,103 +66,9 @@ const Page = () => {
   const [heading, setHeading] = useState("");
   return (
     <>
-      <Backdrop isOpen={isNewLedgerOpen} onClose={onCloseNewLedger}>
-        <Card>
-          <div className="flex w-[30rem] flex-col gap-3 p-5">
-            <h1 className="mb-5 text-3xl">Add Account Book Detail</h1>
-            <div>
-              <p>Account Book Name</p>
-              <input
-                type="text"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-            <div className="mt-5 flex justify-between">
-              <button
-                className="rounded bg-blue-500 px-3 py-2"
-                onClick={() => setIsNewLedgerOpen(false)}
-              >
-                Save
-              </button>
-              <button
-                className="rounded bg-red-500 px-3 py-2"
-                onClick={() => setIsNewLedgerOpen(false)}
-              >
-                Exit
-              </button>
-            </div>
-          </div>
-        </Card>
-      </Backdrop>
-
-      <Backdrop
-        isOpen={isCashPaymentOpen || isCashReceivedOpen}
-        onClose={onCloseCashPayment || onCloseCashReceived}
-      >
-        <Card>
-          <div className="flex w-[30rem] flex-col gap-3 p-5">
-            <h1 className="mb-5 text-3xl">{heading}</h1>
-            <div>
-              <p>Date</p>
-              <input
-                type="date"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <p>Account Book</p>
-              <select className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm">
-                <option value="">Choose</option>
-              </select>
-            </div>
-
-            <div>
-              <p>Choose Party</p>
-              <select className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm">
-                {" "}
-              </select>
-            </div>
-
-            <div>
-              <p>Amount</p>
-              <input
-                type="number"
-                min="0"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <p>Description</p>
-              <input
-                type="text"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-            <div className="mt-5 flex justify-between">
-              <button
-                className="rounded bg-blue-500 px-3 py-2"
-                onClick={() => {
-                  setIsCashPaymentOpen(false);
-                  setIsCashReceivedOpen(false);
-                }}
-              >
-                Save
-              </button>
-              <button
-                className="rounded bg-red-500 px-3 py-2"
-                onClick={() => {
-                  setIsCashPaymentOpen(false);
-                  setIsCashReceivedOpen(false);
-                }}
-              >
-                Exit
-              </button>
-            </div>
-          </div>
-        </Card>
-      </Backdrop>
+      <AddAccountBook isOpen={isNewLedgerOpen} onClose={onCloseNewLedger} setIsOpen={setIsNewLedgerOpen}/>
+      <AddCashPayment isOpen={isCashPaymentOpen} onClose={onCloseCashPayment} setIsOpen={setIsCashPaymentOpen} heading={heading} />
+      <AddCashReceive isOpen={isCashReceivedOpen} onClose={onCloseCashReceived} setIsOpen={setIsCashReceivedOpen} heading={heading}/>
 
       <div className="flex w-full flex-col gap-5">
         <Card>
@@ -159,40 +79,68 @@ const Page = () => {
             />
           </CardHeader>
         </Card>
+
         <Card>
           <CardHeader>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={openNewLedger}
-                className="flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:opacity-90"
-              >
-                <FaPlus className="mr-2" />
-                New Ledger
-              </button>
-              <button
-                onClick={openCashPayment}
-                className="flex items-center rounded bg-red-500 px-4 py-2 text-white hover:opacity-90"
-              >
-                Cash Payment
-              </button>
-              <button
-                onClick={openCashReceived}
-                className="flex items-center rounded bg-green-500 px-4 py-2 text-white hover:opacity-90"
-              >
-                Cash Received
-              </button>
-              <button className="flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:opacity-90">
-                Trial Balance
-              </button>
-              <button className="flex items-center rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-                Balance Sheet
-              </button>
-              <button className="flex items-center rounded bg-blue-500 px-4 py-2 text-white hover:opacity-90">
-                Daily Cash
-              </button>
+            <div className="flex justify-between">
+              <CardTitle>Account Books</CardTitle>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-md p-2 hover:bg-gray-200">
+                    <IoMdMenu className="text-2xl" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="max-h-96 w-52 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-md"
+                  align="end"
+                >
+                  <DropdownMenuLabel className="px-4 py-2 font-bold text-gray-700">
+                    Actions
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1 border-t" />
+
+                  <DropdownMenuItem
+                    onClick={openNewLedger}
+                    className="mb-2 flex items-center rounded border-b border-gray-300 px-4 py-2 hover:opacity-90"
+                  >
+                    New Ledger
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={openCashPayment}
+                    className="mb-2 flex items-center rounded border-b border-gray-300 px-4 py-2 hover:opacity-90"
+                  >
+                    Cash Payment
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={openCashReceived}
+                    className="mb-2 flex items-center rounded border-b border-gray-300 px-4 py-2 hover:bg-blue-700"
+                  >
+                    Cash Received
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="mb-2 flex items-center rounded border-b border-gray-300 px-4 py-2 hover:opacity-90"
+                  >
+                    Trial Balance
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="mb-2 flex items-center rounded border-b border-gray-300 px-4 py-2 hover:opacity-90">
+                    Balance Sheet
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="mb-2 flex items-center rounded border-b border-gray-300 px-4 py-2 hover:opacity-90">
+                    Daily Cash
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <AppTable data={ledgerData} headers={headers} buttons={buttons} />
           </CardHeader>
+          <CardContent></CardContent>
+          <div>
+            <AppTable
+              data={ledgerData}
+              headers={headers}
+              buttons={buttons}
+              setUpdateData={() => console.log("To be Implemented")}
+            />
+          </div>
         </Card>
       </div>
     </>

@@ -13,14 +13,14 @@ interface AddAllotmentProps {
 const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
   const defaultValue = {
     date: "",
-    accountBook: "",
-    client: "",
-    plot: "",
-    heirsName: "",
-    contactNumber: "",
-    cnic: "",
-    address: "",
-    ratePerMarla: "",
+    accountBook: 0,
+    client: 0,
+    plot: 0,
+    // heirsName: "",
+    // contactNumber: "",
+    // cnic: "",
+    // address: "",
+    ratePerMarla: 0,
     totalPrice: 0,
     advancePercent: 10,
     amount: 0,
@@ -35,11 +35,15 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = () => {
     // Handle form submission
+    if(validateForm()){      
+    setFormData(() => defaultValue);
     onClose();
+    }
   };
 
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
@@ -52,12 +56,101 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
     onClose();
     setIsAddClientOpen(true);
   };
+  
+  const errorsDefault={
+    date: "",
+    accountBook: "",
+    client: "",
+    plot: "",
+    ratePerMarla: "",
+    totalPrice: "",
+    advancePercent: "",
+    amount: "",
+    numOfMonths: "",
+  }
+  const [errors,setErrors]=useState(errorsDefault);
+  const numberRegex = /^\d+$/;
+  const decimalRegex = /^\d+(\.\d+)?$/;
+  const validateForm=()=>{
+    let validation = true;
+    if(!formData.date){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        date:"Date is Required",
+      }));
+      validation=false;
+    }
+    if(formData.accountBook===0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        accountBook:"AccountBook type is required",
+      }));
+      validation=false;
+    }
+    if(formData.client===0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        client:"Client type is required",
+      }));
+      validation=false;
+    }
+    if(formData.plot===0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        plot:"Plot type is required",
+      }));
+      validation=false;
+    }
+    if(!decimalRegex.test(formData.ratePerMarla.toString()) || formData.ratePerMarla<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        ratePerMarla:"Must be number or decimal",
+      }));
+      validation=false;
+    }
+    if(!decimalRegex.test(formData.totalPrice.toString()) || formData.totalPrice<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        totalPrice:"Must be number or decimal",
+      }));
+      validation=false;
+    }
+    if(!decimalRegex.test(formData.amount.toString()) || formData.amount<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        amount:"Must be number or decimal",
+      }));
+      validation=false;
+    }
+    if(!numberRegex.test(formData.advancePercent.toString()) || formData.advancePercent<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        advancePercent:"Must be number",
+      }));
+      validation=false;
+    }
+    if(!numberRegex.test(formData.numOfMonths.toString()) || formData.numOfMonths<=0){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        numOfMonths:"Must be number",
+      }));
+      validation=false;
+    }
+    if(validation){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
   return (
     <div>
       <AddClient
         isOpen={isAddClientOpen}
         onClose={onAddClientClose}
         setIsOpen={setIsAddClientOpen}
+        isModalAdd={true}
+        updateData={["", ""]}
       />
       <Backdrop isOpen={isOpen} onClose={onClose}>
         <Card className="flex h-[90vh] w-[30rem] flex-col gap-3 overflow-y-auto p-5">
@@ -84,6 +177,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               type="date"
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             />
+             {errors.date && (
+                 <p className="text-red-500 text-sm">{errors.date}</p>
+              )}
           </div>
           <div>
             <p>Account Book</p>
@@ -94,12 +190,15 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value="">Select Account Book</option>
-              <option value="purchaser">Purchaser</option>
-              <option value="investor">Investor</option>
-              <option value="employees">Employees</option>
-              <option value="banks">Banks</option>
+              <option value={0}>Select Account Book</option>
+              <option value={1}>Purchaser</option>
+              <option value={2}>Investor</option>
+              <option value={3}>Employees</option>
+              <option value={4}>Banks</option>
             </select>
+            {errors.accountBook && (
+                 <p className="text-red-500 text-sm">{errors.accountBook}</p>
+            )}
           </div>
           <div>
             <p>Client</p>
@@ -108,7 +207,12 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               value={formData.client}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-            ></select>
+            >
+              <option value={0}>Choose</option>
+            </select>
+            {errors.client && (
+                 <p className="text-red-500 text-sm">{errors.client}</p>
+            )}
           </div>
           <div>
             <p>Plot</p>
@@ -118,8 +222,11 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value="">Choose</option>
+              <option value={0}>Choose</option>
             </select>
+            {errors.plot && (
+                 <p className="text-red-500 text-sm">{errors.plot}</p>
+            )}
           </div>
           <div className="flex flex-col gap-1">
             <p>Length:</p>
@@ -155,7 +262,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               className="mt-1 block w-full rounded-md border border-slate-300 bg-slate-200 px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             />
           </div>
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between">
             <div>
               <p>Heirs Name</p>
               <input
@@ -198,7 +305,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
             </div>
-          </div>
+          </div> */}
           <div className="flex justify-between">
             <div>
               <p>Rate per marla</p>
@@ -209,6 +316,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 type="number"
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.ratePerMarla && (
+                 <p className="text-red-500 text-sm">{errors.ratePerMarla}</p>
+                )}
             </div>
             <div>
               <p>Total Price</p>
@@ -220,6 +330,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.totalPrice && (
+                 <p className="text-red-500 text-sm">{errors.totalPrice}</p>
+                )}
             </div>
           </div>
           <div className="flex justify-between">
@@ -233,6 +346,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 min="0"
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.advancePercent && (
+                 <p className="text-red-500 text-sm">{errors.advancePercent}</p>
+                )}
             </div>
             <div>
               <p>Amount</p>
@@ -244,6 +360,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 min="0"
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.amount && (
+                 <p className="text-red-500 text-sm">{errors.amount}</p>
+                )}
             </div>
           </div>
           <div className="flex justify-between">
@@ -257,6 +376,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 min="0"
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
+               {errors.numOfMonths && (
+                 <p className="text-red-500 text-sm">{errors.numOfMonths}</p>
+                )}
             </div>
             <div>
               <p>Type of Installment</p>
@@ -285,9 +407,8 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 className="rounded-lg border-2 border-red-500 px-4 py-2 font-semibold text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
                 onClick={() => {
                   setIsOpen(false);
-                  setFormData((prev) => {
-                    return { ...prev, defaultValue };
-                  });
+                  setFormData(defaultValue);
+                  setErrors(errorsDefault);
                 }}
               >
                 Exit

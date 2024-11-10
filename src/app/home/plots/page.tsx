@@ -1,13 +1,12 @@
 "use client";
-import React, { useEffect } from "react";
-import type { ChangeEvent } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import PageHeader from "~/components/PageHeader";
 import { MdLandscape } from "react-icons/md";
 import AppTable from "~/components/Table";
 import { FaPlus, FaPrint } from "react-icons/fa";
-import { useState } from "react";
-import Backdrop from "~/components/Backdrop";
+import { useState, useEffect } from "react";
+import AddPlot from "~/components/AddPlot";
 import axios from "axios";
 import {
   DropdownMenu,
@@ -55,307 +54,48 @@ const Page = () => {
     "Amount",
     "Total Amount",
   ];
-  const buttons = plotData.map(() => [
+  const buttons = plotData.map((element) => [
     {
       label: "Update",
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
-      onClick: () => openBackdrop(),
+      data: element,
+      onClick: () => {
+        setIsModalAdd(false);
+        openBackdrop();
+      },
     },
   ]);
-
+  const [updateData, setUpdateData] = useState<(string | number)[]>([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
   const [isOpen, setIsOpen] = useState(false);
-
-  const defaultValue = {
-    number: 0,
-    type: 0,
-    area: 0,
-    feet1: 0,
-    inch1: 0,
-    feet2: 0,
-    inch2: 0,
-    rate: 0,
-    price: 0,
-    month: 0,
-    installment: 0,
-    advance: 0,
-    advamount: 0,
-    feature: 0,
-    total: 0,
-  };
-
-  const [form, setForm] = useState(defaultValue);
-
+  const [isModalAdd, setIsModalAdd] = useState(true);
   const onClose = () => {
-    setForm(() => defaultValue);
     setIsOpen(false);
   };
 
   const openBackdrop = () => {
     setIsOpen(true);
   };
-
-  useEffect(() => {
-    setForm((prev) => {
-      if (prev.rate != undefined && prev.area != undefined) {
-        return {
-          ...prev,
-          price: prev.rate * prev.area,
-        };
-      }
-      return prev;
-    });
-  }, [form.rate, form.area]);
-
-  useEffect(() => {
-    setForm((prev) => {
-      return {
-        ...prev,
-        total:
-          prev.feature == 1
-            ? prev.price + prev.price * 0.1
-            : prev.feature == 2
-              ? prev.price + prev.price * 0.05
-              : prev.price,
-      };
-    });
-  }, [form.price, form.feature]);
-
-  useEffect(() => {
-    setForm((prev) => {
-      return {
-        ...prev,
-        rate: prev.type == 1 ? 120000 : prev.rate,
-      };
-    });
-  }, [form.type]);
-
-  function setFormValue(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    setForm((prev) => {
-      return {
-        ...prev,
-        [e.target.name]:
-          e.target.name == "type" ||
-          e.target.name == "installment" ||
-          e.target.name == "feature"
-            ? Number(e.target.value)
-            : e.target.value,
-      };
-    });
-  }
-
   return (
     <>
-      <Backdrop isOpen={isOpen} onClose={onClose}>
-        <Card className="flex h-[90vh] w-full flex-col overflow-y-auto">
-          <CardHeader>
-            <CardTitle className="text-3xl">Plot Menu</CardTitle>
-          </CardHeader>
-          <CardContent className="flex w-auto flex-col flex-wrap p-5">
-            <div className="flex items-center justify-evenly gap-2">
-              <div>
-                <p>Plot #</p>
-                <input
-                  placeholder="231"
-                  name="number"
-                  type="text"
-                  value={form.number}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Plot Type</p>
-                <select
-                  name="type"
-                  value={form.type}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                >
-                  <option value={0}>Select Type</option>
-                  <option value={1}>Residential</option>
-                  <option value={2}>Commercial</option>
-                </select>
-              </div>
-              <div>
-                <p>Area</p>
-                <input
-                  placeholder="20"
-                  type="text"
-                  name="area"
-                  value={form.area}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex items-center justify-around gap-10">
-              <div>
-                <p>Feets</p>
-                <input
-                  placeholder="30"
-                  type="text"
-                  name="feet1"
-                  value={form.feet1}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Inches</p>
-                <input
-                  placeholder="6"
-                  type="text"
-                  name="inch1"
-                  value={form.inch1}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Feets</p>
-                <input
-                  placeholder="50"
-                  type="text"
-                  name="feet2"
-                  value={form.feet2}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Inches</p>
-                <input
-                  placeholder="2"
-                  type="text"
-                  name="inch2"
-                  value={form.inch2}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex items-center gap-16">
-              <div>
-                <p>Rate Per Marla</p>
-                <input
-                  placeholder="0"
-                  type="text"
-                  disabled={form.type == 1 ? true : false}
-                  name="rate"
-                  value={form.rate}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Price</p>
-                <input
-                  placeholder="0"
-                  type="text"
-                  disabled
-                  name="price"
-                  value={form.price}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex items-center gap-16">
-              <div>
-                <p>Number of Months</p>
-                <input
-                  placeholder="6"
-                  type="text"
-                  name="month"
-                  value={form.month}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Installment Type</p>
-                <select
-                  name="installment"
-                  value={form.installment}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                >
-                  <option value={0}>Select the Desired Type</option>
-                  <option value={1}>Monthly</option>
-                  <option value={2}>3 Months</option>
-                  <option value={3}>Half Year</option>
-                  <option value={4}>Yearly</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-5 flex items-center gap-16">
-              <div>
-                <p>Advance %</p>
-                <input
-                  type="text"
-                  name="advance"
-                  value={form.advance}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Advance Amount</p>
-                <input
-                  type="text"
-                  name="advamount"
-                  value={form.advamount}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex items-center gap-16">
-              <div>
-                <p>Feature</p>
-                <select
-                  name="feature"
-                  value={form.feature}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                >
-                  <option value={0}>Select the Feature Type</option>
-                  <option value={1}>Front</option>
-                  <option value={2}>Back</option>
-                </select>
-              </div>
-              <div className="">
-                <p>Total Price</p>
-                <input
-                  type="text"
-                  disabled
-                  name="total"
-                  value={form.total}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div className="mt-5 flex justify-between">
-              <button
-                className="rounded-lg border-2 border-blue-500 px-4 py-2 font-semibold text-blue-500 transition-colors duration-300 ease-in-out hover:bg-blue-500 hover:text-white"
-                onClick={() => setIsOpen(false)}
-              >
-                Save
-              </button>
-              <button
-                className="rounded-lg border-2 border-red-500 px-4 py-2 font-semibold text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
-                onClick={() => setIsOpen(false)}
-              >
-                Exit
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      </Backdrop>
-
+      <AddPlot
+        isOpen={isOpen}
+        onClose={onClose}
+        setIsOpen={setIsOpen}
+        isModalAdd={isModalAdd}
+        updateData={updateData}
+      />
       <div>
         <div className="flex w-full flex-col gap-5">
           <Card>
@@ -387,7 +127,10 @@ const Page = () => {
                     <DropdownMenuSeparator className="my-1 border-t" />
 
                     <DropdownMenuItem
-                      onClick={() => openBackdrop()}
+                      onClick={() => {
+                        setIsModalAdd(true);
+                        openBackdrop();
+                      }}
                       className="flex items-center rounded px-4 py-2 hover:opacity-90"
                     >
                       <FaPlus className="mr-2" />
@@ -403,7 +146,12 @@ const Page = () => {
               </div>
             </CardHeader>
             <CardContent className="flex gap-2">
-              <AppTable data={plotData} headers={headers} buttons={buttons} />
+              <AppTable
+                data={plotData}
+                headers={headers}
+                buttons={buttons}
+                setUpdateData={setUpdateData}
+              />
             </CardContent>
           </Card>
         </div>

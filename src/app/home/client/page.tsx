@@ -34,21 +34,29 @@ const Page = () => {
       });
   }, []);
   const headers = ["No.", "Name", "CNIC", "Phone", "Address"];
+  const [updateData, setUpdateData] = useState([0, "", "", "", ""]);
+
+  const [isModalAdd, setIsModalAdd] = useState(true);
+
   const clientData = clients.map((client) => [
-    client.id.toString(), // No.
-    client.name, // Name
-    client.cnic, // CNIC
-    client.phone, // Phone
-    client.address, // Address
+    client.id.toString(), 
+    client.name, 
+    client.cnic, 
+    client.phone, 
+    client.address, 
   ]);
 
-  const buttons = clients.map(() => [
+  const buttons = clientData.map((element) => [
     {
       label: "Update",
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "DETAIL",
-      onClick: () => openBackdrop(),
+      data: element,
+      onClick: () => {
+        setIsModalAdd(false);
+        openBackdrop();
+      },
     },
   ]);
 
@@ -64,7 +72,13 @@ const Page = () => {
 
   return (
     <>
-      <AddClient isOpen={isOpen} onClose={onClose} setIsOpen={setIsOpen} />
+      <AddClient
+        isOpen={isOpen}
+        onClose={onClose}
+        setIsOpen={setIsOpen}
+        isModalAdd={isModalAdd}
+        updateData={updateData}
+      />
       <div>
         <div className="flex w-full flex-col gap-5">
           <Card>
@@ -96,7 +110,10 @@ const Page = () => {
                     <DropdownMenuSeparator className="my-1 border-t" />
 
                     <DropdownMenuItem
-                      onClick={() => openBackdrop()}
+                      onClick={() => {
+                        setIsModalAdd(true);
+                        openBackdrop();
+                      }}
                       className="flex items-center rounded px-4 py-2 hover:opacity-90"
                     >
                       <FaPlus className="mr-2" />
@@ -112,7 +129,12 @@ const Page = () => {
               </div>
             </CardHeader>
             <CardContent className="flex gap-2">
-              <AppTable data={clientData} headers={headers} buttons={buttons} />
+              <AppTable
+                data={clientData}
+                headers={headers}
+                buttons={buttons}
+                setUpdateData={setUpdateData}
+              />
             </CardContent>
           </Card>
         </div>

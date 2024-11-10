@@ -14,7 +14,7 @@ const Page = () => {
     ["1", "Anas Mustafa", "0343123123", "Lahore", "ANAS", "********"],
     ["2", "Mudassir", "0343126153", "Lahore", "MUDASSIR", "********"],
     ["3", "AbdulRehman", "0325673123", "Lahore", "ABDULREHMAN", "********"],
-    [" ", " ", " ", " ", " ", " "],
+    ["", "", "", "", "", ""],
   ]);
 
   const headers = [
@@ -31,6 +31,7 @@ const Page = () => {
       label: "Update",
       className: "bg-blue-500 text-white px-3 py-2 rounded mr-1",
       actionType: "UPDATE",
+      data: ["", ""],
       onClick: () => {
         openBackdrop(k);
       },
@@ -49,6 +50,8 @@ const Page = () => {
   //   setIndex(index);
   //   setIsOpen(true);
   // };
+  
+  const [heading,setHeading]=useState("");
 
   const defaultValue = {
     name: "",
@@ -58,9 +61,77 @@ const Page = () => {
     password: "",
   };
   const [formData, setFormData] = useState(defaultValue);
+  const [errors, setErrors] = useState(defaultValue);
+  const [profileData, setProfileData] = useState(defaultValue);
+  const validateName = (name:string)=>{
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if(!name || !nameRegex.test(name)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        name: "Please enter a valid name.",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validatePhoneNumber = (phone:string)=>{
+    const phoneRegex = /^\+[1-9]{1}[0-9]{7,14}$/;
+    if(!phone || !phoneRegex.test(phone)){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        phone: "Please enter a valid phone number in international format (e.g., +1234567890).",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const validateUsername = (username: string) => {
+    const usernameRegex = /^[a-z0-9_\.]{6,}$/;
+    if (!usernameRegex.test(username)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        username: "Username must be at least 6 characters long and contain only lowercase letters, numbers, underscores, and periods.",
+      }));
+      return false;
+    }
+    return true;
+  };
 
+  const validatePassword = (password: string) => {
+    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        password:
+          "Password must be at least 8 characters long, include uppercase, lowercase, a number, and a special character.",
+      }));
+      return false;
+    }
+    return true;
+  };
+  const validateAddress=(address:string)=>{
+    if(!address || address.trim()===""){
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        address:
+          "Please enter a valid address.",
+      }));
+      return false;
+    }
+    return true;
+  }
+  const handleChangeProfile = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setProfileData({ ...profileData, [name]: value });
+
+        // Clear validation errors on input change
+        setErrors({ ...errors, [name]: "" });
+  };
   // Function to close modal
   const onClose = () => {
+    setFormData(() => defaultValue);
     setIsOpen(false);
   };
 
@@ -86,10 +157,20 @@ const Page = () => {
     if (e.target.name == "Hello") handleSubmit(); // Only for linting purpose. To be removed later.
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+        // Clear validation errors on input change
+        setErrors({ ...errors, [name]: "" });
   };
 
   // Handle form submission
   const handleSubmit = () => {
+    const isValidName = validateName(formData.name);
+    const isValidPhone = validatePhoneNumber(formData.phone);
+    const isValidAddress = validateAddress(formData.address);
+    const isValidUsername = validateUsername(formData.username);
+    const isValidPassword = validatePassword(formData.password);
+
+  if (isValidName && isValidPhone && isValidAddress && isValidUsername && isValidPassword) {
     const updatedData = [...userData];
     if (userData[index] != undefined) {
       updatedData[index] = [
@@ -102,16 +183,28 @@ const Page = () => {
       ];
     }
     setUserData(updatedData);
+    setHeading("");
     onClose();
+   };
   };
 
+  const handleSubmitProfile=()=>{
+    const isValidName = validateName(formData.name);
+    const isValidPhone = validatePhoneNumber(formData.phone);
+    const isValidAddress = validateAddress(formData.address);
+    const isValidUsername = validateUsername(formData.username);
+    const isValidPassword = validatePassword(formData.password);
+    if (isValidName && isValidPhone && isValidAddress && isValidUsername && isValidPassword) {
+      alert("Saved")
+    }
+  }
   return (
     <>
       <Backdrop isOpen={isOpen} onClose={onClose}>
         <Card>
-          <div className="w-[30rem] p-5">
-            <h1 className="text-3xl text-gray-800">Update User Details</h1>
-            <div>
+          <div className="w-[30rem] h-[90vh] p-5 overflow-y-auto">
+            <h1 className="text-3xl text-gray-800 p-2">{heading==""?"Update User Details":heading}</h1>
+            <div className="flex flex-col gap-4">
               <div>
                 <p>Name:</p>
                 <input
@@ -122,17 +215,19 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.name}
                 />
+                {errors.name && <p className="text-red-500">{errors.name}</p>}
               </div>
               <div>
                 <p>Contact:</p>
                 <input
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                   type="text"
-                  placeholder="Contact"
+                  placeholder="+923058111211"
                   name="phone"
                   onChange={handleChange}
                   value={formData.phone}
                 />
+                {errors.phone && <p className="text-red-500">{errors.phone}</p>}
               </div>
               <div>
                 <p>Address</p>
@@ -144,6 +239,9 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.address}
                 />
+                {errors.address && (
+                  <p className="text-red-500">{errors.address}</p>
+                )}
               </div>
               <div>
                 <p>Username:</p>
@@ -155,6 +253,9 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.username}
                 />
+                {errors.username && (
+                  <p className="text-red-500">{errors.username}</p>
+                )}
               </div>
               <div>
                 <p>Password:</p>
@@ -166,12 +267,15 @@ const Page = () => {
                   onChange={handleChange}
                   value={formData.password}
                 />
+                {errors.password && (
+                  <p className="text-red-500">{errors.password}</p>
+                )}
               </div>
             </div>
             <div className="mt-5 flex justify-between">
               <button
                 className="rounded bg-blue-500 px-3 py-2"
-                onClick={() => setIsOpen(false)}
+                onClick={handleSubmit}
               >
                 Save
               </button>
@@ -179,6 +283,8 @@ const Page = () => {
                 className="rounded bg-red-500 px-3 py-2"
                 onClick={() => {
                   setIsOpen(false);
+                  setHeading("");
+                  setErrors(defaultValue);
                   setFormData((prev) => {
                     return { ...prev, defaultValue };
                   });
@@ -208,12 +314,16 @@ const Page = () => {
                   <input
                     type="Name"
                     name="name"
+                    value={profileData.name}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Full Name"
                   />
                   <input
                     type="phone"
                     name="phone"
+                    value={profileData.phone}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Phone Number"
                   />
@@ -222,12 +332,16 @@ const Page = () => {
                   <input
                     type="text"
                     name="username"
+                    value={profileData.username}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Username"
                   />
                   <input
                     type="password"
                     name="password"
+                    value={profileData.password}
+                    onChange={handleChangeProfile}
                     className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                     placeholder="Password"
                   />
@@ -235,6 +349,8 @@ const Page = () => {
                 <input
                   type="text"
                   name="address"
+                  value={profileData.address}
+                  onChange={handleChangeProfile}
                   className="mt-1 block w-1/2 rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                   placeholder="Address"
                 />
@@ -248,9 +364,16 @@ const Page = () => {
           <Card>
             <CardHeader>
               <h1 className="text-2xl">Users</h1>
-              <AppTable data={userData} headers={headers} buttons={buttons} />
+              <AppTable
+                data={userData}
+                headers={headers}
+                buttons={buttons}
+                setUpdateData={() => console.log("To bo Implemented")}
+              />
               <button
-                onClick={() => openBackdrop(3)}
+                onClick={() =>{ openBackdrop(3)
+                  setHeading("Add User Details")
+                }}
                 className="mt-5 flex w-32 items-center rounded bg-blue-500 px-4 py-2 text-white hover:opacity-90"
               >
                 <FaPlus className="mr-2" />

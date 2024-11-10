@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Backdrop from "~/components/Backdrop";
 import {
   Card,
@@ -13,9 +13,17 @@ interface AddClientProps {
   isOpen: boolean;
   onClose: () => void;
   setIsOpen: (type: boolean) => void;
+  isModalAdd: boolean;
+  updateData: (string | number)[];
 }
 
-const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
+const AddClient = ({
+  isOpen,
+  onClose,
+  setIsOpen,
+  isModalAdd,
+  updateData,
+}: AddClientProps) => {
   interface Form {
     type: number;
     name: string;
@@ -28,12 +36,23 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
     type: 0,
     name: "",
     cnic: "",
-    address: "",
     phone: "",
+    address: "",
   };
 
   const [form, setForm] = useState<Form>(defaultValue);
-
+  useEffect(()=>{
+    if(isModalAdd==false){
+      const updatedForm = {
+        type: Number(updateData[0]),
+        name: String(updateData[1]),
+        cnic: String(updateData[2]),
+        phone: String(updateData[3]),
+        address: String(updateData[4]),
+      };
+      setForm(updatedForm);
+    }
+  },[updateData])
   function setFormValue(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) {
@@ -46,17 +65,23 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
     });
   }
   const handleSubmit = () => {
-    // Handle form submission
+    if (isModalAdd == true) {
+      console.log("Add");
+    } else if (isModalAdd == false) {
+      console.log(updateData);
+      console.log("Update");
+    }
+    setForm(() => defaultValue);
     onClose();
   };
   return (
     <div>
       <Backdrop isOpen={isOpen} onClose={onClose}>
-        <Card className="flex min-w-[20rem] max-w-[30rem] flex-col items-center">
+        <Card className="flex h-[90vh] min-w-[20rem] max-w-[30rem] flex-col items-center overflow-y-auto">
           <CardHeader className="flex">
             <CardTitle className="mx-auto mb-5 text-3xl">Client Menu</CardTitle>
           </CardHeader>
-          <CardContent className="flex w-[20rem] flex-col flex-wrap p-5">
+          <CardContent className="flex w-auto flex-col flex-wrap p-5">
             <div className="flex flex-col items-center gap-2">
               <div className="w-full">
                 <p>Type</p>
@@ -76,7 +101,7 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
               <div className="w-full">
                 <p>Name</p>
                 <input
-                  placeholder="Residential"
+                  placeholder="Mudasir"
                   type="text"
                   name="name"
                   onChange={setFormValue}
@@ -92,6 +117,17 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
                   name="cnic"
                   onChange={setFormValue}
                   value={form.cnic}
+                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
+                />
+              </div>
+              <div className="w-full">
+                <p>Phone</p>
+                <input
+                  placeholder="03058111211"
+                  type="text"
+                  name="phone"
+                  onChange={setFormValue}
+                  value={form.phone}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
               </div>
@@ -119,9 +155,7 @@ const AddClient = ({ isOpen, onClose, setIsOpen }: AddClientProps) => {
                   className="rounded-lg border-2 border-red-500 px-4 py-2 font-semibold text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
                   onClick={() => {
                     setIsOpen(false);
-                    setForm((prev) => {
-                      return { ...prev, defaultValue };
-                    });
+                    setForm(() => defaultValue);
                   }}
                 >
                   Exit

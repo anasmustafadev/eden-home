@@ -34,6 +34,7 @@ const AddInstallment = ({
   const handleSubmit = () => {
     // Handle form submission
     onClose();
+    setFormData(defaultValue);
   };
   return (
     <div>
@@ -98,9 +99,7 @@ const AddInstallment = ({
                 className="rounded-lg border-2 border-red-500 px-4 py-2 font-semibold text-red-500 transition-colors duration-300 ease-in-out hover:bg-red-500 hover:text-white"
                 onClick={() => {
                   setIsOpen(false);
-                  setFormData((prev) => {
-                    return { ...prev, defaultValue };
-                  });
+                  setFormData(defaultValue);
                 }}
               >
                 Exit

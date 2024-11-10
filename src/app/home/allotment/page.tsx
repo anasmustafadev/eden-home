@@ -66,7 +66,10 @@ const Page = () => {
       className:
         "border-2 border-blue-500 text-blue-500 font-semibold py-2 px-4 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out",
       actionType: "STAMPPAPER",
-      onClick: () => openAddAllotment(),
+      data: ["", "", "", "", "", "", "", "", ""],
+      onClick: () => {
+        console.log("To Be Implemented");
+      },
     },
   ]);
 
@@ -270,6 +273,7 @@ const Page = () => {
               data={allotmentData}
               headers={headers}
               buttons={buttons}
+              setUpdateData={() => console.log("To be Implemented")}
             />
           </div>
         </Card>
