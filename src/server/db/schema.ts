@@ -7,10 +7,23 @@ import {
   integer,
   real,
   timestamp,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 // Create table with project-specific prefix
 export const createTable = pgTableCreator((name) => `eden_home_${name}`);
+
+export const plotType = pgEnum("plotType", ["Commercial", "Residential"]);
+export const plotFeature = pgEnum("plotFeature", [
+  "Park Facing",
+  "Main Facing",
+]);
+export const installmentType = pgEnum("installmentType", [
+  "1 Month",
+  "3 Months",
+  "6 Months",
+  "12 Months",
+]);
 
 /////////////////////////
 // Person Table
@@ -36,7 +49,7 @@ export const person = createTable(
 
 export const client = createTable("client", {
   clientId: serial("client_id").primaryKey(),
-  type: integer("type").references(() => lookup.id), // Purchaser = 0 from Lookup
+  personId: integer("person_id").references(() => person.id),
 });
 
 /////////////////////////
@@ -45,13 +58,13 @@ export const client = createTable("client", {
 
 export const plot = createTable("plot", {
   plotId: serial("plot_id").primaryKey(),
-  type: integer("type").references(() => lookup.id), // Plot Types: 1=Commercial, 2=Residential
+  type: plotType("plotType").default("Residential"),
   area: integer("area").notNull(), // In Marla
   width: real("width").notNull(), // Width in feet.inches
   height: real("height").notNull(), // Height in feet.inches
   ratePerMarla: integer("rate_per_marla").notNull(),
   price: integer("price").default(0), // Derived attribute (can be calculated in app logic)
-  feature: integer("feature").references(() => lookup.id), // Plot Features: 7=Park Facing, 8=Main Facing
+  feature: plotFeature("plotFeature").default("Main Facing"),
   total: integer("total").default(0), // Derived total price
 });
 
@@ -67,18 +80,8 @@ export const allotment = createTable("allotment", {
   clientId: integer("client_id").references(() => client.clientId),
   plotId: integer("plot_id").references(() => plot.plotId),
   months: integer("months").notNull(), // Total months for installment
-  installmentType: integer("installment_type").references(() => lookup.id), // Installment types
+  installmentType: installmentType("installmentType").default("6 Months"),
   advancePercentage: integer("advance_percentage").notNull(),
   advanceTotal: integer("advance_total").default(0), // Derived attribute
   allotedBy: integer("alloted_by").notNull(), // Allotted by User ID
-});
-
-/////////////////////////
-// Lookup Table with values
-/////////////////////////
-
-export const lookup = createTable("lookup", {
-  id: serial("id").primaryKey(),
-  value: varchar("value", { length: 256 }).notNull(),
-  description: varchar("description", { length: 512 }).notNull(),
 });
