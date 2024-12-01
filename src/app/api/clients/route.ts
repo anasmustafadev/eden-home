@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db/index";
-import { person } from "~/server/db/schema";
+import { client, person } from "~/server/db/schema";
 import { type personType } from "~/types/personType";
 
 export async function GET() {
@@ -20,7 +20,10 @@ export async function POST(request: Request) {
       name: res.name,
     })
     .returning();
-  return Response.json(data, {
+  await db.insert(client).values({
+    personId: data[0]?.id,
+  });
+  return Response.json(data[0], {
     status: 201,
   });
 }
@@ -37,7 +40,7 @@ export async function PUT(request: Request) {
     })
     .where(eq(person.id, res.id))
     .returning();
-  return Response.json(data, {
+  return Response.json(data[0], {
     status: 202,
   });
 }

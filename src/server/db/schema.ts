@@ -13,6 +13,13 @@ import {
 // Create table with project-specific prefix
 export const createTable = pgTableCreator((name) => `eden_home_${name}`);
 
+export const clientType = pgEnum("clientType", [
+  "Purchaser",
+  "Investor",
+  "Employee",
+  "Bank",
+]);
+
 export const plotType = pgEnum("plotType", ["Commercial", "Residential"]);
 export const plotFeature = pgEnum("plotFeature", [
   "Park Facing",
@@ -50,6 +57,7 @@ export const person = createTable(
 export const client = createTable("client", {
   clientId: serial("client_id").primaryKey(),
   personId: integer("person_id").references(() => person.id),
+  clientType: clientType("clientType").default("Purchaser"),
 });
 
 /////////////////////////

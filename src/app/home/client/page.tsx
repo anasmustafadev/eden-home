@@ -39,11 +39,11 @@ const Page = () => {
   const [isModalAdd, setIsModalAdd] = useState(true);
 
   const clientData = clients.map((client) => [
-    client.id.toString(), 
-    client.name, 
-    client.cnic, 
-    client.phone, 
-    client.address, 
+    client.id.toString(),
+    client.name,
+    client.cnic,
+    client.phone,
+    client.address,
   ]);
 
   const buttons = clientData.map((element) => [
@@ -64,6 +64,11 @@ const Page = () => {
 
   const onClose = () => {
     setIsOpen(false);
+    getUsers()
+      .then((data) => setClients(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
   };
 
   const openBackdrop = () => {
