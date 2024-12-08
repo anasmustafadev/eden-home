@@ -5,7 +5,7 @@ import { type plotType } from "~/types/plotType";
 
 export async function GET() {
   const data = await db.select().from(plot);
-  console.log(data);
+  data.sort((a, b) => a.plotId - b.plotId);
   return Response.json(data);
 }
 

@@ -5,6 +5,7 @@ import { type personType } from "~/types/personType";
 
 export async function GET() {
   const data = await db.select().from(person);
+  data.sort((a, b) => a.id - b.id);
   console.log(data);
   return Response.json(data);
 }

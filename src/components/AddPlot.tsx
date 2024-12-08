@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Backdrop from "./Backdrop";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import type { ChangeEvent } from "react";
+import { type plotType } from "~/types/plotType";
+import axios from "axios";
 interface AddPlotProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,9 +18,47 @@ const AddPlot = ({
   isModalAdd,
   updateData,
 }: AddPlotProps) => {
-  const defaultValue = {
+  const addPlot = async (plot: plotType) => {
+    await axios.post("/api/plots", {
+      type: plot.type,
+      area: plot.area,
+      width: plot.width,
+      height: plot.height,
+      ratePerMarla: plot.ratePerMarla,
+      price: plot.price,
+      feature: plot.feature,
+      total: plot.total,
+    });
+  };
+
+  const updatePlot = async (plot: plotType) => {
+    await axios.put("/api/plots", {
+      plotId: plot.plotId,
+      type: plot.type,
+      area: plot.area,
+      width: plot.width,
+      height: plot.height,
+      ratePerMarla: plot.ratePerMarla,
+      price: plot.price,
+      feature: plot.feature,
+      total: plot.total,
+    });
+  };
+  const defaultValue: {
+    number: number;
+    type: "Commercial" | "Residential";
+    area: number;
+    feet1: number;
+    inch1: number;
+    feet2: number;
+    inch2: number;
+    rate: number;
+    price: number;
+    feature: "Park Facing" | "Main Facing";
+    total: number;
+  } = {
     number: 0,
-    type: 0,
+    type: "Residential",
     area: 0,
     feet1: 0,
     inch1: 0,
@@ -26,15 +66,11 @@ const AddPlot = ({
     inch2: 0,
     rate: 0,
     price: 0,
-    // month: 0,
-    // installment: 0,
-    // advance: 0,
-    // advamount: 0,
-    feature: 0,
+    feature: "Main Facing",
     total: 0,
   };
- 
-  const errorDefault={
+
+  const errorDefault = {
     number: "",
     type: "",
     area: "",
@@ -46,115 +82,130 @@ const AddPlot = ({
     price: "",
     feature: "",
     total: "",
-  }
-  
+  };
 
   const [form, setForm] = useState(defaultValue);
 
   const [errors, setErrors] = useState(errorDefault);
-  
+
   const numberRegex = /^\d+$/;
   const decimalRegex = /^\d+(\.\d+)?$/;
 
-  const validateForm=()=>{
-    let validation=true;
-   if(!numberRegex.test(form.number.toString()) || form.number<=0){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      number: "Must be number and greater than 0",
-    }));
-    validation=false;
-   }
-   if(form.type === 0){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      type: "Plot type is required",
-    }));
-    validation=false;
-   }
-   if(!decimalRegex.test(form.area.toString())||form.area <= 0){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      area: "Area must be a number and greater than 0",
-    }));
-    validation=false;
-   }
-   if(form.feet1 <= 0 || !numberRegex.test(form.feet1.toString())){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      feet1: "Must be a number and greater than 0",
-    }));
-    validation=false;
-   }
-   if(form.feet2<=0||!numberRegex.test(form.feet2.toString())){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      feet2:"Must be a number and greater than 0",
-    }));
-    validation=false;
-   }
-   if(form.inch1<=0||!numberRegex.test(form.inch1.toString())){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      inch1:"Must be a number and greater than 0",
-    }));
-    validation=false;
-   }
-   if(form.inch2<=0||!numberRegex.test(form.inch2.toString())){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      inch2:"Must be a number and greater than 0",
-    }));
-    validation=false;
-   }
-   if(!decimalRegex.test(form.rate.toString()) || form.rate<=0){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      rate:"Must be a integer or decimal and greater than 0",
-    }));
-    validation=false;
-   }
-   if(!decimalRegex.test(form.price.toString())||form.price<=0){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      price:"Must be a integer or decimal and greater than 0",
-    }));
-    validation=false;
-   }
-   if(!decimalRegex.test(form.total.toString())||form.total<=0){
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      total:"Must be a integer or decimal and greater than 0",
-    }));
-    validation=false;
-   }
-   if(validation){
-    return true;
-   }else{
-    return false;
-   }
-  }
+  const validateForm = () => {
+    let validation = true;
+    if (!numberRegex.test(form.number.toString()) || form.number <= 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        number: "Must be number and greater than 0",
+      }));
+      validation = false;
+    }
+    if (!form.type) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        type: "Plot type is required",
+      }));
+      validation = false;
+    }
+    if (!decimalRegex.test(form.area.toString()) || form.area <= 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        area: "Area must be a number and greater than 0",
+      }));
+      validation = false;
+    }
+    if (form.feet1 <= 0 || !numberRegex.test(form.feet1.toString())) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        feet1: "Must be a number and greater than 0",
+      }));
+      validation = false;
+    }
+    if (form.feet2 <= 0 || !numberRegex.test(form.feet2.toString())) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        feet2: "Must be a number and greater than 0",
+      }));
+      validation = false;
+    }
+    if (form.inch1 <= 0 || !numberRegex.test(form.inch1.toString())) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        inch1: "Must be a number and greater than 0",
+      }));
+      validation = false;
+    }
+    if (form.inch2 <= 0 || !numberRegex.test(form.inch2.toString())) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        inch2: "Must be a number and greater than 0",
+      }));
+      validation = false;
+    }
+    if (!decimalRegex.test(form.rate.toString()) || form.rate <= 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        rate: "Must be a integer or decimal and greater than 0",
+      }));
+      validation = false;
+    }
+    if (!decimalRegex.test(form.price.toString()) || form.price <= 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        price: "Must be a integer or decimal and greater than 0",
+      }));
+      validation = false;
+    }
+    if (!decimalRegex.test(form.total.toString()) || form.total <= 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        total: "Must be a integer or decimal and greater than 0",
+      }));
+      validation = false;
+    }
+    if (validation) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   useEffect(() => {
-    if(isModalAdd==false){
-    const dimension = updateData[3]?.toString().split("x");
-    const updatedForm = {
-      number: Number(updateData[0]), 
-      type: updateData[1] === "Residential" ? 1 : updateData[1] === "Commercial" ? 2 : 0, 
-      area: Number(updateData[2]?.toString().split(" ")[0]), 
-      feet1: Number(dimension ? dimension[0]?.split(".")[0] : "0"), 
-      inch1: Number(dimension ? dimension[0]?.split(".")[1] : "0"),
-      feet2: Number(dimension ? dimension[1]?.split(".")[0] : "0"),
-      inch2: Number(dimension ? dimension[1]?.split(".")[1] : "0"), 
-      rate: Number(updateData[4]), 
-      price: Number(updateData[5]), 
-      feature: 0, 
-      total: Number(updateData[6]), 
-    };
-    
-    setForm(updatedForm);
+    if (isModalAdd == false) {
+      const dimension = updateData[3]?.toString().split("x");
+      const updatedForm: {
+        number: number;
+        type: "Commercial" | "Residential";
+        area: number;
+        feet1: number;
+        inch1: number;
+        feet2: number;
+        inch2: number;
+        rate: number;
+        price: number;
+        feature: "Park Facing" | "Main Facing";
+        total: number;
+      } = {
+        number: Number(updateData[0]),
+        type:
+          updateData[1]?.toString() === "Commercial"
+            ? "Commercial"
+            : "Residential",
+        area: Number(updateData[2]?.toString().split(" ")[0]),
+        feet1: Number(dimension ? dimension[0]?.split(".")[0] : "0"),
+        inch1: Number(dimension ? dimension[0]?.split(".")[1] : "0"),
+        feet2: Number(dimension ? dimension[1]?.split(".")[0] : "0"),
+        inch2: Number(dimension ? dimension[1]?.split(".")[1] : "0"),
+        rate: Number(updateData[4]),
+        price: Number(updateData[5]),
+        feature: "Main Facing",
+        total: Number(updateData[6]),
+      };
+
+      setForm(updatedForm);
     }
   }, [updateData]);
+
   useEffect(() => {
     setForm((prev) => {
       if (prev.rate != undefined && prev.area != undefined) {
@@ -169,12 +220,13 @@ const AddPlot = ({
 
   useEffect(() => {
     setForm((prev) => {
+      console.log(prev.feature);
       return {
         ...prev,
         total:
-          prev.feature == 1
+          prev.feature === "Main Facing"
             ? prev.price + prev.price * 0.1
-            : prev.feature == 2
+            : prev.feature === "Park Facing"
               ? prev.price + prev.price * 0.05
               : prev.price,
       };
@@ -185,7 +237,7 @@ const AddPlot = ({
     setForm((prev) => {
       return {
         ...prev,
-        rate: prev.type == 1 ? 120000 : prev.rate,
+        rate: prev.type == "Commercial" ? 120000 : prev.rate,
       };
     });
   }, [form.type]);
@@ -194,29 +246,45 @@ const AddPlot = ({
     setForm((prev) => {
       return {
         ...prev,
-        [e.target.name]:
-          e.target.name == "type" ||
-          e.target.name == "installment" ||
-          e.target.name == "feature"
-            ? Number(e.target.value)
-            : e.target.value,
+        [e.target.name]: e.target.value,
       };
     });
-   // Clear validation errors on input change
-   setErrors({ ...errors, [e.target.name]: "" });
+    // Clear validation errors on input change
+    setErrors({ ...errors, [e.target.name]: "" });
   }
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validation = validateForm();
-    if(validation){
+    if (validation) {
       if (isModalAdd == true) {
+        await addPlot({
+          plotId: 0,
+          type: form.type,
+          area: form.area,
+          width: parseFloat(`${form.feet1}.${form.inch1}`),
+          height: parseFloat(`${form.feet2}.${form.inch2}`),
+          ratePerMarla: form.rate,
+          price: form.price,
+          feature: form.feature,
+          total: form.total,
+        });
         console.log("Add");
       } else {
-        console.log(updateData);
+        await updatePlot({
+          plotId: Number(updateData[0]),
+          type: form.type,
+          area: form.area,
+          width: parseFloat(`${form.feet1}.${form.inch1}`),
+          height: parseFloat(`${form.feet2}.${form.inch2}`),
+          ratePerMarla: form.rate,
+          price: form.price,
+          feature: form.feature,
+          total: form.total,
+        });
         console.log("Update");
       }
       onClose();
       setForm(() => defaultValue);
-   }
+    }
   };
   return (
     <div>
@@ -238,7 +306,7 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.number && (
-                 <p className="text-red-500 text-sm">{errors.number}</p>
+                  <p className="text-sm text-red-500">{errors.number}</p>
                 )}
               </div>
               <div>
@@ -249,12 +317,12 @@ const AddPlot = ({
                   onChange={setFormValue}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 >
-                  <option value={0}>Select Type</option>
-                  <option value={1}>Residential</option>
-                  <option value={2}>Commercial</option>
+                  <option value={undefined}>Select Type</option>
+                  <option value={"Residential"}>Residential</option>
+                  <option value={"Commercial"}>Commercial</option>
                 </select>
                 {errors.type && (
-                 <p className="text-red-500 text-sm">{errors.type}</p>
+                  <p className="text-sm text-red-500">{errors.type}</p>
                 )}
               </div>
               <div>
@@ -268,7 +336,7 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.area && (
-                 <p className="text-red-500 text-sm">{errors.area}</p>
+                  <p className="text-sm text-red-500">{errors.area}</p>
                 )}
               </div>
             </div>
@@ -285,7 +353,7 @@ const AddPlot = ({
             </div>
             <div className="mt-5 flex items-center justify-around gap-10">
               <div>
-                <p>Feets</p>
+                <p>Feet</p>
                 <input
                   placeholder="30"
                   type="text"
@@ -295,7 +363,7 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.feet1 && (
-                 <p className="text-red-500 text-sm">{errors.feet1}</p>
+                  <p className="text-sm text-red-500">{errors.feet1}</p>
                 )}
               </div>
               <div>
@@ -309,11 +377,11 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.inch1 && (
-                 <p className="text-red-500 text-sm">{errors.inch1}</p>
+                  <p className="text-sm text-red-500">{errors.inch1}</p>
                 )}
               </div>
               <div>
-                <p>Feets</p>
+                <p>Feet</p>
                 <input
                   placeholder="50"
                   type="text"
@@ -323,7 +391,7 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.feet2 && (
-                 <p className="text-red-500 text-sm">{errors.feet2}</p>
+                  <p className="text-sm text-red-500">{errors.feet2}</p>
                 )}
               </div>
               <div>
@@ -337,7 +405,7 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.inch2 && (
-                 <p className="text-red-500 text-sm">{errors.inch2}</p>
+                  <p className="text-sm text-red-500">{errors.inch2}</p>
                 )}
               </div>
             </div>
@@ -347,14 +415,14 @@ const AddPlot = ({
                 <input
                   placeholder="0"
                   type="text"
-                  disabled={form.type == 1 ? true : false}
+                  disabled={form.type == "Commercial" ? true : false}
                   name="rate"
                   value={form.rate}
                   onChange={setFormValue}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.rate && (
-                 <p className="text-red-500 text-sm">{errors.rate}</p>
+                  <p className="text-sm text-red-500">{errors.rate}</p>
                 )}
               </div>
               <div>
@@ -369,60 +437,10 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.price && (
-                 <p className="text-red-500 text-sm">{errors.price}</p>
+                  <p className="text-sm text-red-500">{errors.price}</p>
                 )}
               </div>
             </div>
-            {/* <div className="mt-5 flex items-center gap-16">
-              <div>
-                <p>Number of Months</p>
-                <input
-                  placeholder="6"
-                  type="text"
-                  name="month"
-                  value={form.month}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Installment Type</p>
-                <select
-                  name="installment"
-                  value={form.installment}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                >
-                  <option value={0}>Select the Desired Type</option>
-                  <option value={1}>Monthly</option>
-                  <option value={2}>3 Months</option>
-                  <option value={3}>Half Year</option>
-                  <option value={4}>Yearly</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-5 flex items-center gap-16">
-              <div>
-                <p>Advance %</p>
-                <input
-                  type="text"
-                  name="advance"
-                  value={form.advance}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <p>Advance Amount</p>
-                <input
-                  type="text"
-                  name="advamount"
-                  value={form.advamount}
-                  onChange={setFormValue}
-                  className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-                />
-              </div>
-            </div> */}
             <div className="mt-5 flex items-center gap-16">
               <div>
                 <p>Feature</p>
@@ -432,9 +450,9 @@ const AddPlot = ({
                   onChange={setFormValue}
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 >
-                  <option value={0}>Select the Feature Type</option>
-                  <option value={1}>Front</option>
-                  <option value={2}>Back</option>
+                  <option value={undefined}>Select the Feature Type</option>
+                  <option value={"Park Facing"}>Park Facing</option>
+                  <option value={"Main Facing"}>Main Facing</option>
                 </select>
               </div>
               <div className="">
@@ -448,7 +466,7 @@ const AddPlot = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.price && (
-                 <p className="text-red-500 text-sm">{errors.price}</p>
+                  <p className="text-sm text-red-500">{errors.price}</p>
                 )}
               </div>
             </div>

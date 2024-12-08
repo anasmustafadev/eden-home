@@ -35,7 +35,7 @@ const Page = () => {
   const transformPlotData = (plots: plotType[]) => {
     return plots.map((plot) => [
       plot.plotId.toString(), // No.
-      plot.type === 1 ? "Commercial" : "Residential", // Plot Type
+      plot.type, // Plot Type
       `${plot.area} Marla`, // Area
       `${plot.width}x${plot.height}`, // Size
       plot.ratePerMarla.toString(), // Rate
@@ -81,6 +81,11 @@ const Page = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalAdd, setIsModalAdd] = useState(true);
   const onClose = () => {
+    getPlots()
+      .then((data) => setPlots(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
     setIsOpen(false);
   };
 
