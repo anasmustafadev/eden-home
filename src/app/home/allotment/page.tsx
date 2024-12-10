@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import AppTable from "~/components/Table";
 import PageHeader from "~/components/PageHeader";
@@ -20,7 +20,8 @@ import AddReturnAmount from "~/components/AddReturnAmount";
 import AddMultiInstallment from "~/components/AddMultiInstallment";
 import CancelAllotment from "~/components/CancelAllotment";
 import DeletePermanentAllotment from "~/components/DeletePermanentAllotment";
-import { object } from "zod";
+import { type AllotmentRecord } from "~/types/allotmentType";
+import axios from "axios";
 
 interface FormErrors {
   date?: string;
@@ -30,71 +31,80 @@ interface FormErrors {
 }
 
 const Page = () => {
-  
+  const [allotments, setAllotments] = useState<AllotmentRecord[]>([]);
+  const getAllotments = async (): Promise<AllotmentRecord[]> => {
+    console.log("At Allotments");
+    const response = await axios.get("/api/allotments");
+    return response.data as AllotmentRecord[];
+  };
+  useEffect(() => {
+    console.log("in herer");
+    getAllotments()
+      .then((data) => setAllotments(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
+  }, []);
   const decimalRegex = /^\d+(\.\d+)?$/;
   const alphabetsRegex = /^[A-Za-z\s]{1,100}$/;
-  const validateAdvanceInstallmentAndReturnAmountForm = (formData:any,setErrors:(updateFn: (prevErrors: FormErrors) => FormErrors)=>void)=>{
+  const validateAdvanceInstallmentAndReturnAmountForm = (
+    formData: any,
+    setErrors: (updateFn: (prevErrors: FormErrors) => FormErrors) => void,
+  ) => {
     let validation = true;
-    if(!formData.date){
+    if (!formData.date) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        date:"Date is Required",
+        date: "Date is Required",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!formData.plot){
+    if (!formData.plot) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        plot:"Plot type is Required",
+        plot: "Plot type is Required",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!decimalRegex.test(formData.amount.toString()) || formData.amount<=0){
+    if (
+      !decimalRegex.test(formData.amount.toString()) ||
+      formData.amount <= 0
+    ) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        amount:"Must be number",
+        amount: "Must be number",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!alphabetsRegex.test(formData.description)){
+    if (!alphabetsRegex.test(formData.description)) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        description:"Must be alphabets and can't exceed 100 characters.",
+        description: "Must be alphabets and can't exceed 100 characters.",
       }));
-      validation=false;
+      validation = false;
     }
-    if(validation){
-      return true
-    }else{
-      return false
+    if (validation) {
+      return true;
+    } else {
+      return false;
     }
+  };
+  function transformAllotmentData(allotments: AllotmentRecord[]): string[][] {
+    return allotments.map((allotment) => [
+      allotment.ID.toString(),
+      new Date(allotment.Date).toLocaleDateString(), // Formats the date as DD-MM-YYYY
+      `Plot#${allotment.Plot}`,
+      allotment.ClientName,
+      `${allotment.Area.toFixed(2)}M`, // Formats area with 2 decimal places and adds "M"
+      allotment.SaleRate.toLocaleString(), // Formats sale rate with commas
+      allotment.Price.toLocaleString(), // Formats price with commas
+      allotment.Advance.toLocaleString(), // Formats advance payment with commas
+      (allotment.Price - allotment.Advance).toLocaleString(), // Calculates installment amount
+      `${allotment.NoOfInstallments}(${allotment.Installment})`, // Combines installments and type
+    ]);
   }
-  const allotmentData = [
-    [
-      "1",
-      "25-11-2024",
-      "Plot#1",
-      "Mudasir Ahmed",
-      "4.00M",
-      "250,000",
-      "1,000,000",
-      "100,000",
-      "15000",
-      "60(Monthly)",
-    ],
-    [
-      "2",
-      "27-4-2024",
-      "Plot#2",
-      "Anas Mustafa",
-      "4.00M",
-      "250,000",
-      "1,000,000",
-      "100,000",
-      "15000",
-      "45(Monthly)",
-    ],
-  ];
+
+  const allotmentData = transformAllotmentData(allotments);
   const headers = [
     "ID",
     "Date",
@@ -138,6 +148,11 @@ const Page = () => {
     useState(false);
 
   const onCloseAddAllotment = () => {
+    getAllotments()
+      .then((data) => setAllotments(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
     setIsAddAllotmentOpen(false);
   };
   const onCloseAddAdvance = () => {

@@ -23,6 +23,7 @@ import { type personType } from "~/types/personType";
 const Page = () => {
   const [clients, setClients] = useState<personType[]>([]);
   const getUsers = async (): Promise<personType[]> => {
+    console.log("At Clients");
     const response = await axios.get("/api/clients");
     return response.data as personType[];
   };

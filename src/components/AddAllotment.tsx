@@ -1,8 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Backdrop from "~/components/Backdrop";
 import { Card, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import AddClient from "./AddClient";
+import { type personType } from "~/types/personType";
+import axios from "axios";
+import { type plotType } from "~/types/plotType";
+import { type allotmentType } from "~/types/allotmentType";
 
 interface AddAllotmentProps {
   isOpen: boolean;
@@ -11,21 +15,64 @@ interface AddAllotmentProps {
 }
 
 const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
-  const defaultValue = {
+  const addAllotment = async (allotment: allotmentType) => {
+    console.log(allotment);
+    await axios.post("/api/allotments", {
+      allotmentDate: allotment.allotmentDate,
+      clientId: allotment.clientId,
+      plotId: allotment.plotId,
+      months: allotment.months,
+      installmentType: allotment.installmentType,
+      advancePercentage: allotment.advancePercentage,
+      advanceTotal: allotment.advanceTotal,
+      allotedBy: allotment.allotedBy,
+    });
+  };
+
+  const [clients, setClients] = useState<personType[]>([]);
+  const [client, setClient] = useState<personType | undefined>(clients[0]);
+  const [plots, setPlots] = useState<plotType[]>([]);
+  const [plot, setPlot] = useState<plotType | undefined>(plots[0] ?? undefined);
+  const getUsers = async (): Promise<personType[]> => {
+    console.log("allot add");
+    const response = await axios.get("/api/clients");
+    return response.data as personType[];
+  };
+  const getPlots = async (): Promise<plotType[]> => {
+    console.log("allot add");
+    const response = await axios.get("/api/availablePlots");
+    return response.data as plotType[];
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const clientsData = await getUsers();
+        const plotsData = await getPlots();
+        setClients(clientsData);
+        setPlots(plotsData);
+
+        // Set initial values after data fetch
+        setClient(clientsData[0]);
+        setPlot(plotsData[0]);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+
+    void fetchData();
+  }, []); // Empty dependency array ensures this runs only on mount
+
+  const defaultValue: {
+    date: string;
+    advancePercent: number;
+    numOfMonths: number;
+    installmentType: "1 Month" | "3 Months" | "6 Months" | "12 Months";
+  } = {
     date: "",
-    accountBook: "",
-    client: "",
-    plot: "",
-    // heirsName: "",
-    // contactNumber: "",
-    // cnic: "",
-    // address: "",
-    ratePerMarla: 0,
-    totalPrice: 0,
     advancePercent: 10,
-    amount: 0,
     numOfMonths: 60,
-    installmentType: "monthly",
+    installmentType: "1 Month",
   };
   const [formData, setFormData] = useState(defaultValue);
   const handleChange = (
@@ -38,11 +85,30 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
     setErrors({ ...errors, [name]: "" });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Handle form submission
-    if(validateForm()){      
-    setFormData(() => defaultValue);
-    onClose();
+    if (validateForm()) {
+      console.log(formData);
+      await addAllotment({
+        allotmentId: 0,
+        allotmentDate: new Date(formData.date),
+        clientId: Number(client?.id),
+        plotId: Number(plot?.plotId),
+        months: formData.numOfMonths,
+        installmentType: formData.installmentType,
+        advancePercentage: formData.advancePercent,
+        advanceTotal: Number(plot?.total) * (formData.advancePercent / 100),
+        allotedBy: 0,
+      });
+      const plotsData = await getPlots();
+      setPlots(plotsData);
+      if (plotsData.length > 0) {
+        setPlot(plotsData[0]);
+      } else {
+        setPlot(undefined);
+      }
+      setFormData(() => defaultValue);
+      onClose();
     }
   };
 
@@ -56,8 +122,8 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
     onClose();
     setIsAddClientOpen(true);
   };
-  
-  const errorsDefault={
+
+  const errorsDefault = {
     date: "",
     accountBook: "",
     client: "",
@@ -67,82 +133,60 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
     advancePercent: "",
     amount: "",
     numOfMonths: "",
-  }
-  const [errors,setErrors]=useState(errorsDefault);
+  };
+  const [errors, setErrors] = useState(errorsDefault);
   const numberRegex = /^\d+$/;
   const decimalRegex = /^\d+(\.\d+)?$/;
-  const validateForm=()=>{
+  const validateForm = () => {
     let validation = true;
-    if(!formData.date){
+    console.log(formData);
+    if (!formData.date) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        date:"Date is Required",
+        date: "Date is Required",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!formData.accountBook){
+    if (
+      !numberRegex.test(formData.advancePercent.toString()) ||
+      formData.advancePercent <= 0
+    ) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        accountBook:"AccountBook type is required",
+        advancePercent: "Must be number",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!formData.client){
+    if (
+      !numberRegex.test(formData.numOfMonths.toString()) ||
+      formData.numOfMonths <= 0
+    ) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        client:"Client type is required",
+        numOfMonths: "Must be number",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!formData.plot){
+    if (!plot) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        plot:"Plot type is required",
+        plot: "Plot Not Selected",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!decimalRegex.test(formData.ratePerMarla.toString()) || formData.ratePerMarla<=0){
+    if (!client) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        ratePerMarla:"Must be number or decimal",
+        client: "Plot Not Selected",
       }));
-      validation=false;
+      validation = false;
     }
-    if(!decimalRegex.test(formData.totalPrice.toString()) || formData.totalPrice<=0){
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        totalPrice:"Must be number or decimal",
-      }));
-      validation=false;
-    }
-    if(!decimalRegex.test(formData.amount.toString()) || formData.amount<=0){
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        amount:"Must be number or decimal",
-      }));
-      validation=false;
-    }
-    if(!numberRegex.test(formData.advancePercent.toString()) || formData.advancePercent<=0){
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        advancePercent:"Must be number",
-      }));
-      validation=false;
-    }
-    if(!numberRegex.test(formData.numOfMonths.toString()) || formData.numOfMonths<=0){
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        numOfMonths:"Must be number",
-      }));
-      validation=false;
-    }
-    if(validation){
+    if (validation) {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
-  }
+  };
   return (
     <div>
       <AddClient
@@ -177,55 +221,56 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
               type="date"
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             />
-             {errors.date && (
-                 <p className="text-red-500 text-sm">{errors.date}</p>
-              )}
-          </div>
-          <div>
-            <p>Account Book</p>
-
-            <select
-              name="accountBook"
-              value={formData.accountBook}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-            >
-              <option value="">Select Account Book</option>
-              <option value="purchaser">Purchaser</option>
-              <option value="investor">Investor</option>
-              <option value="employees">Employees</option>
-              <option value="banks">Banks</option>
-            </select>
-            {errors.accountBook && (
-                 <p className="text-red-500 text-sm">{errors.accountBook}</p>
+            {errors.date && (
+              <p className="text-sm text-red-500">{errors.date}</p>
             )}
           </div>
           <div>
             <p>Client</p>
             <select
               name="client"
-              value={formData.client}
-              onChange={handleChange}
+              value={client?.id}
+              onChange={(e) => {
+                handleChange(e);
+                setClient(
+                  clients.find(
+                    (client) => client.id == parseInt(e.target.value),
+                  ),
+                );
+              }}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value="">Choose</option>
+              {clients.map((client) => (
+                <option value={client.id} key={client.id}>
+                  {client.name}
+                </option>
+              ))}
             </select>
             {errors.client && (
-                 <p className="text-red-500 text-sm">{errors.client}</p>
+              <p className="text-sm text-red-500">{errors.client}</p>
             )}
           </div>
           <div>
             <p>Plot</p>
             <select
               name="plot"
-              value={formData.plot}
-              onChange={handleChange}
+              value={plot?.plotId}
+              onChange={(e) => {
+                handleChange(e);
+                setPlot(
+                  plots.find((plot) => plot.plotId == parseInt(e.target.value)),
+                );
+              }}
               className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             >
-              <option value="">Choose</option>
+              {plots.map((plot) => (
+                <option value={plot.plotId} key={plot.plotId}>
+                  {`#${plot.plotId} - ${plot.area} Marla`}
+                </option>
+              ))}
             </select>
             {errors.plot && (
-                 <p className="text-red-500 text-sm">{errors.plot}</p>
+              <p className="text-sm text-red-500">{errors.plot}</p>
             )}
           </div>
           <div className="flex flex-col gap-1">
@@ -233,6 +278,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
             <p>Feet</p>
             <input
               type="number"
+              value={Number(plot?.height.toString().split(".")[0])}
               disabled={true}
               min="0"
               className="mt-1 block w-full rounded-md border border-slate-300 bg-slate-200 px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
@@ -240,6 +286,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
             <p>Inches</p>
             <input
               type="number"
+              value={Number(plot?.height.toString().split(".")[1])}
               disabled={true}
               min="0"
               className="mt-1 block w-full rounded-md border border-slate-300 bg-slate-200 px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
@@ -249,6 +296,7 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
             <p>Width:</p>
             <p>Feet</p>
             <input
+              value={Number(plot?.width.toString().split(".")[0])}
               type="number"
               disabled={true}
               min="0"
@@ -256,69 +304,27 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
             />
             <p>Inches</p>
             <input
+              value={Number(plot?.height.toString().split(".")[1])}
               type="number"
               disabled={true}
               min="0"
               className="mt-1 block w-full rounded-md border border-slate-300 bg-slate-200 px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
             />
           </div>
-          {/* <div className="flex justify-between">
-            <div>
-              <p>Heirs Name</p>
-              <input
-                name="heirsName"
-                value={formData.heirsName}
-                onChange={handleChange}
-                type="text"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <p>Contact Number</p>
-              <input
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                type="text"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <div>
-              <p>CNIC</p>
-              <input
-                name="cnic"
-                value={formData.cnic}
-                onChange={handleChange}
-                type="text"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <p>Address</p>
-              <input
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                type="text"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
-              />
-            </div>
-          </div> */}
           <div className="flex justify-between">
             <div>
               <p>Rate per marla</p>
               <input
+                value={plot?.ratePerMarla}
                 name="ratePerMarla"
-                value={formData.ratePerMarla}
                 onChange={handleChange}
+                disabled={true}
                 type="number"
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-slate-300 bg-slate-200 px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
-               {errors.ratePerMarla && (
-                 <p className="text-red-500 text-sm">{errors.ratePerMarla}</p>
-                )}
+              {errors.ratePerMarla && (
+                <p className="text-sm text-red-500">{errors.ratePerMarla}</p>
+              )}
             </div>
             <div>
               <p>Total Price</p>
@@ -326,13 +332,14 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 name="totalPrice"
                 type="number"
                 min="0"
-                value={formData.totalPrice}
+                disabled={true}
+                value={Number(plot?.total)}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-slate-300 bg-slate-200 px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
-               {errors.totalPrice && (
-                 <p className="text-red-500 text-sm">{errors.totalPrice}</p>
-                )}
+              {errors.totalPrice && (
+                <p className="text-sm text-red-500">{errors.totalPrice}</p>
+              )}
             </div>
           </div>
           <div className="flex justify-between">
@@ -346,23 +353,24 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 min="0"
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
-               {errors.advancePercent && (
-                 <p className="text-red-500 text-sm">{errors.advancePercent}</p>
-                )}
+              {errors.advancePercent && (
+                <p className="text-sm text-red-500">{errors.advancePercent}</p>
+              )}
             </div>
             <div>
               <p>Amount</p>
               <input
                 name="amount"
-                value={formData.amount}
+                value={Number(plot?.total) * (formData.advancePercent / 100)}
                 onChange={handleChange}
                 type="number"
                 min="0"
+                disabled={true}
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
-               {errors.amount && (
-                 <p className="text-red-500 text-sm">{errors.amount}</p>
-                )}
+              {errors.amount && (
+                <p className="text-sm text-red-500">{errors.amount}</p>
+              )}
             </div>
           </div>
           <div className="flex justify-between">
@@ -376,9 +384,9 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 min="0"
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
-               {errors.numOfMonths && (
-                 <p className="text-red-500 text-sm">{errors.numOfMonths}</p>
-                )}
+              {errors.numOfMonths && (
+                <p className="text-sm text-red-500">{errors.numOfMonths}</p>
+              )}
             </div>
             <div>
               <p>Type of Installment</p>
@@ -388,10 +396,10 @@ const AddAllotment = ({ isOpen, onClose, setIsOpen }: AddAllotmentProps) => {
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               >
-                <option value="monthly">Monthly</option>
-                <option value="3month">3 Month</option>
-                <option value="6month">6 Month</option>
-                <option value="yearly">Yearly</option>
+                <option value="1 Month">Monthly</option>
+                <option value="3 Months">3 Month</option>
+                <option value="6 Months">6 Month</option>
+                <option value="12 Months">Yearly</option>
               </select>
             </div>
           </div>

@@ -9,20 +9,23 @@ interface FormErrors {
   description?: string;
 }
 
-interface AddInstallmenteProps {
+interface AddInstallmentProps {
   isOpen: boolean;
   onClose: () => void;
   setIsOpen: (type: boolean) => void;
   heading: string;
-  validateForm: (formData: any, setErrors: (updateFn: (prevErrors: FormErrors) => FormErrors) => void) => boolean;
+  validateForm: (
+    formData: any,
+    setErrors: (updateFn: (prevErrors: FormErrors) => FormErrors) => void,
+  ) => boolean;
 }
 const AddInstallment = ({
   isOpen,
   onClose,
   setIsOpen,
   heading,
-  validateForm
-}: AddInstallmenteProps) => {
+  validateForm,
+}: AddInstallmentProps) => {
   const defaultValue = {
     date: "",
     plot: "",
@@ -33,10 +36,10 @@ const AddInstallment = ({
     date: "",
     plot: "",
     amount: "",
-    description: ""
+    description: "",
   };
-  const [errors,setErrors]=useState<FormErrors>(errorDefault);
- 
+  const [errors, setErrors] = useState<FormErrors>(errorDefault);
+
   const [formData, setFormData] = useState(defaultValue);
   const handleChange = (
     e: React.ChangeEvent<
@@ -50,7 +53,7 @@ const AddInstallment = ({
 
   const handleSubmit = () => {
     // Handle form submission
-    if(validateForm(formData,setErrors)){
+    if (validateForm(formData, setErrors)) {
       onClose();
       setFormData(defaultValue);
     }
@@ -73,8 +76,8 @@ const AddInstallment = ({
                 className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
               />
               {errors.date && (
-                 <p className="text-red-500 text-sm">{errors.date}</p>
-            )}
+                <p className="text-sm text-red-500">{errors.date}</p>
+              )}
             </div>
             <div>
               <p>Plot</p>
@@ -87,8 +90,8 @@ const AddInstallment = ({
                 <option value="">Choose</option>
               </select>
               {errors.plot && (
-                 <p className="text-red-500 text-sm">{errors.plot}</p>
-            )}
+                <p className="text-sm text-red-500">{errors.plot}</p>
+              )}
             </div>
             <div className="flex justify-between">
               <div>
@@ -102,8 +105,8 @@ const AddInstallment = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.amount && (
-                 <p className="text-red-500 text-sm">{errors.amount}</p>
-            )}
+                  <p className="text-sm text-red-500">{errors.amount}</p>
+                )}
               </div>
               <div>
                 <p>Description</p>
@@ -115,8 +118,8 @@ const AddInstallment = ({
                   className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-4 placeholder-slate-400 shadow-sm placeholder:font-semibold placeholder:text-gray-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                 />
                 {errors.description && (
-                 <p className="text-red-500 text-sm">{errors.description}</p>
-            )}
+                  <p className="text-sm text-red-500">{errors.description}</p>
+                )}
               </div>
             </div>
             <div className="mt-5 flex justify-between">

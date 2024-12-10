@@ -1,7 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import SimpleTable from "~/components/SimpleTable";
-import { Card, CardHeader,CardTitle,CardContent } from "~/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import PageHeader from "~/components/PageHeader";
 import { FaMoneyBillAlt } from "react-icons/fa";
 import { useState } from "react";
@@ -15,18 +15,52 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { IoMdMenu } from "react-icons/io";
+import { type expenseType } from "~/types/expenseType";
+import axios from "axios";
 
 const Page = () => {
-  const expenseData = [
-    ["No.", "Expense Accounts", "Amount"],
-    ["1", "Office Expense", "15,000"],
-    ["2", "File Expense", "450,000"],
-    ["3", "Total Expense", "465,000"],
-  ];
+  const [expenses, setExpenses] = useState<expenseType[]>([]);
+  const getExpenses = async (): Promise<expenseType[]> => {
+    console.log("At Clients");
+    const response = await axios.get("/api/expenses");
+    return response.data as expenseType[];
+  };
+  useEffect(() => {
+    getExpenses()
+      .then((data) => setExpenses(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
+  }, []);
+
+  const transformExpenseData = (apiData: expenseType[]) => {
+    // Add headers to the first row
+    const formattedData = [
+      ["No.", "Date", "Expense Details", "Amount"],
+      ["1", "12/4/2024", "Office Expense", "15,000"],
+      ["2", "12/2/2024", "File Expense", "450,000"],
+      ["3", "12/2/2024", "Total Expense", "465,000"],
+      ...apiData.map((expense) => [
+        expense.id.toString(), // Transform id to string for consistency in the table
+        new Intl.DateTimeFormat("en-US").format(new Date(expense.date)),
+        expense.description,
+        expense.amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), // Format amount with commas
+      ]),
+    ];
+
+    return formattedData;
+  };
+
+  const expenseData = transformExpenseData(expenses);
 
   const [isOpen, setIsOpen] = useState(false);
 
   const onClose = () => {
+    getExpenses()
+      .then((data) => setExpenses(data))
+      .catch((error) => {
+        console.error("Failed to fetch clients:", error);
+      });
     setIsOpen(false);
   };
 
@@ -36,8 +70,7 @@ const Page = () => {
 
   return (
     <>
-     
-      <AddExpense isOpen={isOpen} onClose={onClose} setIsOpen={setIsOpen}/>
+      <AddExpense isOpen={isOpen} onClose={onClose} setIsOpen={setIsOpen} />
       <div className="flex w-full flex-col gap-5">
         <Card>
           <CardHeader>
@@ -82,7 +115,7 @@ const Page = () => {
           </CardHeader>
           <CardContent></CardContent>
           <div>
-          <SimpleTable data={expenseData} />
+            <SimpleTable data={expenseData} />
           </div>
         </Card>
       </div>
