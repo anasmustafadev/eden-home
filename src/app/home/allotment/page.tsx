@@ -32,11 +32,15 @@ interface FormErrors {
 
 const Page = () => {
   const [allotments, setAllotments] = useState<AllotmentRecord[]>([]);
+  const [clients, setClients] = useState(["Ali", "Ahmed", "Asad", "Ahsan"]);
+  const [clientData, setClientData] = useState<any>([]);
+  const setTable = () => {};
   const getAllotments = async (): Promise<AllotmentRecord[]> => {
     console.log("At Allotments");
     const response = await axios.get("/api/allotments");
     return response.data as AllotmentRecord[];
   };
+
   useEffect(() => {
     console.log("in herer");
     getAllotments()
@@ -344,6 +348,46 @@ const Page = () => {
         </Card>
         <Card>
           <CardHeader>
+            <div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="rounded-md p-2 hover:bg-gray-200">
+                    <IoMdMenu className="text-2xl" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="max-h-96 w-52 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-md"
+                  align="end"
+                >
+                  <DropdownMenuLabel className="px-4 py-2 font-bold text-gray-700">
+                    Clients
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="my-1 border-t" />
+                  {clients.map((client: string, index: number) => {
+                    return (
+                      <DropdownMenuItem
+                        className="items-cente mb-2 flex rounded border-b border-gray-300 px-4 py-2 hover:opacity-90"
+                        onClick={setTable}
+                      >
+                        {client}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardHeader>
+          <CardContent className="flex gap-2">
+            <AppTable
+              data={clientData}
+              headers={headers}
+              buttons={buttons}
+              setUpdateData={setClientData}
+            />
+          </CardContent>
+        </Card>
+        {/* <Card>
+          <CardHeader>
             <CardTitle>Sales Report</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col flex-wrap gap-10">
@@ -364,7 +408,7 @@ const Page = () => {
               );
             })}
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
